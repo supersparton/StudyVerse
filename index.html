@@ -6,18 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyVerse - Your Campus in the Cloud</title>
     <meta name="description" content="The all-in-one workspace for students to focus, collaborate, and grow together.">
+
+    <!-- Google Fonts - Inter font family for modern look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+
+    <!-- Google Material Icons - for all the icons used on the page -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
+
+    <!-- Main stylesheet -->
     <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="css/landing.css">
 </head>
 
 <body>
 
-    <!-- Navbar -->
     <header class="navbar">
         <a href="index.html" class="navbar-brand">
             <div class="logo-icon">
@@ -25,16 +32,23 @@
             </div>
             <h2>StudyVerse</h2>
         </a>
+
+        <!-- Navigation links -->
         <nav class="navbar-links">
             <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
             <a href="#gallery">Community</a>
-            <a href="#">Pricing</a>
-            <a href="#">About</a>
+            <a href="#about">About</a>
+
         </nav>
+
+        <!-- Login/Signup buttons -->
         <div class="navbar-actions">
-            <a href="signup.html" class="btn btn-ghost">Login</a>
+            <a href="Login.html" class="btn btn-ghost">Login</a>
             <a href="signup.html" class="btn btn-primary">Sign Up</a>
         </div>
+
+        <!-- Hamburger menu button (visible on mobile only) -->
         <button class="navbar-menu-btn">
             <span class="material-symbols-outlined">menu</span>
         </button>
@@ -42,9 +56,9 @@
 
     <main>
 
-        <!-- Hero Section -->
         <section class="container">
             <div class="hero">
+                <!-- Left side: text content -->
                 <div class="hero-content fade-in-up">
                     <h1>
                         Your Campus<br>
@@ -56,8 +70,11 @@
                     </p>
                     <div class="hero-buttons">
                         <a href="signup.html" class="btn btn-primary btn-lg">Get Started</a>
-                        <a href="communities.html" class="btn btn-outline btn-lg">Explore Communities</a>
+                        <!-- REMOVED: "Explore Communities" button -->
+                        <!-- Communities are only for logged-in users -->
                     </div>
+
+                    <!-- Social proof: shows other students joined -->
                     <div class="hero-social-proof">
                         <div class="avatar-stack">
                             <img class="avatar"
@@ -70,13 +87,16 @@
                                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt9R6wfo29kOqvgnotiSPlNOdFL9n7X6VxC5ZwrR3jEhDYW-RUNviCFaCiWGvdfo_SNgfLdcErIvf0ru-G-QP9cLqFD8XyvAH68IXhsc58Qj2jtzqT3CBA8O6Tl1zyTalUWbPVZtcGCZKHMMmsljGRKxT49MZIvvlA2suklDPI5CiSZTHvrTYo_IdsnLq1bOegRhzXM58LevwRqNEUq1VQgYBJwbRVwUO6fQ7r3vswXOyeiAENgN8adcLrMElaL8puo1d697IPcOQB"
                                 alt="Student">
                         </div>
-                        <p><strong>+2k</strong> Students joined today</p>
+                        <p><strong>+500</strong> Students already joined</p>
                     </div>
                 </div>
+
+                <!-- Right side: image -->
                 <div class="hero-image fade-in-up fade-in-up-delay-2">
                     <div class="hero-image-card">
                         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJfE5KZfsTP8l0xK8hOQkfhM_Qr7LzQ_YXPhFR8ubaSrztRTWtVe_h0mwhWJ1_-LfdvIsA2yrruzn1DakOndGlmPRFLiILLJE5Ewu_UenzIV9YCFLm0Gfls0XlYCq4kyJKFYR1qxRMMtYT8zAWwYfWXHdQwGbRgeldlw1Xi0sbjfvj8hJdyXiS3ad0IOBg0grkLMF2ivcy1A8T4lmCicfyVmHtiPPTczOvWAyTslhkVMYwjYcIQdXy5SFJ6IfqxIsfGymAjApL2EZn"
                             alt="StudyVerse workspace">
+                        <!-- Floating card showing Pomodoro timer -->
                         <div class="hero-float-card">
                             <div class="float-left">
                                 <div class="float-icon">
@@ -96,74 +116,243 @@
             </div>
         </section>
 
-        <!-- Live Stats -->
         <div class="live-stats">
             <div class="container">
                 <div class="live-stats-inner">
+
                     <div class="live-stat">
                         <div class="live-dot-wrapper">
                             <span class="live-dot-ping"></span>
                             <span class="live-dot"></span>
                         </div>
-                        <strong>1,243 Students Studying Now</strong>
+                        <strong>243 Students Studying Now</strong>
                     </div>
+
                     <div class="stat-dot"></div>
+
+                    <div class="live-stat">
+                        <span class="material-symbols-outlined" style="font-size:18px">description</span>
+                        <strong>1,000+</strong> Notes Shared
+                    </div>
+
+                    <div class="stat-dot"></div>
+
+                    <!-- Stat 3: Communities -->
+                    <div class="live-stat">
+                        <span class="material-symbols-outlined" style="font-size:18px">group</span>
+                        <strong>50+</strong> Active Communities
+                    </div>
+
+                    <div class="stat-dot"></div>
+
+                    <!-- Stat 4: Focus hours -->
                     <div class="live-stat">
                         <span class="material-symbols-outlined" style="font-size:18px">history</span>
-                        500k+ Hours Logged This Week
+                        <strong>5,000+</strong> Focus Hours Logged
                     </div>
-                    <div class="stat-dot"></div>
-                    <div class="live-stat">
-                        <span class="material-symbols-outlined" style="font-size:18px">public</span>
-                        Students from <strong>120+ Countries</strong>
-                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- Features -->
+
         <section id="features" class="features-section">
             <div class="container">
                 <div class="section-header fade-in-up">
                     <h2>Maximize Your Potential</h2>
                     <p>Tools designed to help you study smarter, not harder. Everything you need in one tab.</p>
                 </div>
+
                 <div class="features-grid">
+
+                    <!-- Feature 1: Productivity Tools -->
                     <div class="card feature-card fade-in-up fade-in-up-delay-1">
                         <div class="feature-icon icon-indigo">
                             <span class="material-symbols-outlined">timer</span>
                         </div>
                         <div>
                             <h3>Productivity Tools</h3>
-                            <p>Customizable Pomodoro timers, kanban boards, and distraction blockers to keep you in the
-                                zone.</p>
+                            <p>Customizable Pomodoro timers and focus sessions to keep you in the zone. Track your daily
+                                study hours.</p>
                         </div>
                     </div>
+
+                    <!-- Feature 2: AI Resources -->
                     <div class="card feature-card fade-in-up fade-in-up-delay-2">
                         <div class="feature-icon icon-purple">
                             <span class="material-symbols-outlined">smart_toy</span>
                         </div>
                         <div>
                             <h3>AI-Powered Resources</h3>
-                            <p>Stuck on a problem? Ask StudyBot anything. Generate quizzes, summaries, and flashcards
-                                instantly.</p>
+                            <p>Every community has its own AI bot for instant doubt solving. Get structured explanations
+                                anytime.</p>
                         </div>
                     </div>
+
+                    <!-- Feature 3: Communities -->
                     <div class="card feature-card fade-in-up fade-in-up-delay-3">
                         <div class="feature-icon icon-pink">
                             <span class="material-symbols-outlined">group</span>
                         </div>
                         <div>
                             <h3>Real-time Communities</h3>
-                            <p>Join 24/7 study rooms with lofi beats, screen sharing, and global accountability
-                                partners.</p>
+                            <p>Join topic-based communities with channels for doubts, resources, projects, and more.
+                                Chat in real-time.</p>
                         </div>
                     </div>
+
+                    <!-- Feature 4: Smart Notes (NEW) -->
+                    <div class="card feature-card fade-in-up fade-in-up-delay-1">
+                        <div class="feature-icon icon-green">
+                            <span class="material-symbols-outlined">description</span>
+                        </div>
+                        <div>
+                            <h3>Smart Notes</h3>
+                            <p>Upload PDFs, organize by subject and tags, search across all your notes. Preview and
+                                download anytime.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 5: Task Tracker (NEW) -->
+                    <div class="card feature-card fade-in-up fade-in-up-delay-2">
+                        <div class="feature-icon icon-orange">
+                            <span class="material-symbols-outlined">checklist</span>
+                        </div>
+                        <div>
+                            <h3>Task Tracker</h3>
+                            <p>Create assignments with due dates, priority levels, and status tracking. Never miss a
+                                deadline again.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 6: Streaks & Leaderboard (NEW) -->
+                    <div class="card feature-card fade-in-up fade-in-up-delay-3">
+                        <div class="feature-icon icon-cyan">
+                            <span class="material-symbols-outlined">emoji_events</span>
+                        </div>
+                        <div>
+                            <h3>Streaks & Leaderboard</h3>
+                            <p>Build daily study streaks and compete on community leaderboards. Stay motivated with
+                                gamified learning.</p>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
 
-        <!-- Gallery -->
+        <!-- ==========================================
+             HOW IT WORKS SECTION (NEW)
+             Simple 3-step process to explain the app
+             ========================================== -->
+        <section id="how-it-works" class="how-it-works-section">
+            <div class="container">
+                <div class="section-header text-center fade-in-up">
+                    <h2>How It Works</h2>
+                    <p>Get started in 3 simple steps. It's completely free.</p>
+                </div>
+
+                <div class="steps-grid">
+
+                    <!-- Step 1 -->
+                    <div class="step-card fade-in-up fade-in-up-delay-1">
+                        <div class="step-number">1</div>
+                        <h3>Create Your Account</h3>
+                        <p>Sign up with your email in seconds. No credit card needed — it's 100% free for all students.
+                        </p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-card fade-in-up fade-in-up-delay-2">
+                        <div class="step-number">2</div>
+                        <h3>Set Up Your Dashboard</h3>
+                        <p>Upload notes, create tasks, set your study schedule, and customize your personal productivity
+                            space.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-card fade-in-up fade-in-up-delay-3">
+                        <div class="step-number">3</div>
+                        <h3>Join Communities & Grow</h3>
+                        <p>Join DSA, WebDev, AI, and other communities. Share resources, ask doubts, and learn together.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TESTIMONIALS SECTION (NEW)
+             Student reviews to build trust
+             ========================================== -->
+        <section id="testimonials" class="testimonials-section">
+            <div class="container">
+                <div class="section-header text-center fade-in-up">
+                    <h2>What Students Say</h2>
+                    <p>Hear from students who are already using StudyVerse.</p>
+                </div>
+
+                <div class="testimonials-grid">
+
+                    <!-- Testimonial 1 -->
+                    <div class="testimonial-card fade-in-up fade-in-up-delay-1">
+                        <!-- Star rating using unicode stars -->
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">
+                            "StudyVerse completely changed how I study. The Pomodoro timer and task tracker keep me
+                            focused, and the community channels helped me crack DSA concepts I was stuck on for weeks."
+                        </p>
+                        <div class="testimonial-author">
+                            <!-- Avatar with initials (no image needed) -->
+                            <div class="testimonial-avatar">AP</div>
+                            <div>
+                                <div class="name">Arjun Patel</div>
+                                <div class="role">B.Tech CSE, 3rd Year</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 2 -->
+                    <div class="testimonial-card fade-in-up fade-in-up-delay-2">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">
+                            "The AI bot in the WebDev community is like having a personal tutor 24/7. I ask my React
+                            doubts at midnight and get instant help. Best resource for students!"
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">PS</div>
+                            <div>
+                                <div class="name">Priya Sharma</div>
+                                <div class="role">B.Tech IT, 2nd Year</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 3 -->
+                    <div class="testimonial-card fade-in-up fade-in-up-delay-3">
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">
+                            "I love the streak system — it keeps me accountable. I've been on a 45-day study streak and
+                            my GPA has improved. The notes sharing feature saves so much time."
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">RK</div>
+                            <div>
+                                <div class="name">Rohan Kumar</div>
+                                <div class="role">B.Tech ECE, 4th Year</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             GALLERY SECTION (existing - no changes)
+             Shows study aesthetic photos
+             ========================================== -->
         <section id="gallery" class="gallery-section">
             <div class="container">
                 <div class="section-header">
@@ -192,44 +381,71 @@
                 </div>
             </div>
         </section>
+
+        <!-- ==========================================
+             CTA SECTION (NEW)
+             Final call-to-action before footer
+             Encourages visitors to sign up
+             ========================================== -->
+        <section class="cta-section">
+            <div class="container">
+                <div class="cta-box fade-in-up">
+                    <h2>Ready to Supercharge Your Studies?</h2>
+                    <p>Join hundreds of students who are already studying smarter. It's completely free.</p>
+                    <a href="signup.html" class="btn-white">
+                        Get Started for Free
+                        <span class="material-symbols-outlined" style="font-size:20px">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <!-- ==========================================
+         FOOTER
+         CHANGED: Copyright year updated to 2025
+         CHANGED: Removed "Pricing" and "Download" links
+         ========================================== -->
+    <footer id="about" class="footer">
         <div class="container">
             <div class="footer-grid">
+
+                <!-- Brand info -->
                 <div class="footer-brand">
                     <div class="brand-row">
                         <div class="logo-icon"><span class="material-symbols-outlined"
                                 style="font-size:18px">school</span></div>
                         <span>StudyVerse</span>
                     </div>
-                    <p>Empowering students worldwide to achieve their academic goals through community and technology.
-                    </p>
+                    <p>Empowering students to achieve their academic goals through community and technology.</p>
                 </div>
+
+                <!-- Footer link columns -->
                 <div class="footer-links">
                     <div class="footer-col">
                         <h4>Product</h4>
-                        <a href="#">Features</a>
-                        <a href="#">Pricing</a>
-                        <a href="#">Download</a>
+                        <a href="#features">Features</a>
+                        <a href="#how-it-works">How It Works</a>
+                        <a href="#testimonials">Reviews</a>
                     </div>
                     <div class="footer-col">
                         <h4>Company</h4>
-                        <a href="#">About</a>
-                        <a href="#">Careers</a>
-                        <a href="#">Blog</a>
+                        <a href="#about">About</a>
+                        <a href="#">Contact</a>
                     </div>
                     <div class="footer-col">
                         <h4>Resources</h4>
-                        <a href="communities.html">Community</a>
                         <a href="#">Help Center</a>
-                        <a href="#">Privacy</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Use</a>
                     </div>
                 </div>
             </div>
+
+            <!-- CHANGED: Updated year from 2024 to 2025 -->
             <div class="footer-bottom">
-                © 2024 StudyVerse Inc. All rights reserved.
+                &copy; 2025 StudyVerse. All rights reserved.
             </div>
         </div>
     </footer>

@@ -1,0 +1,224 @@
+/* ========================================
+   LANDING PAGE STYLES
+   Styles for: How It Works, Testimonials,
+   CTA, and extra feature card colors
+   ======================================== */
+
+/* ---------- How It Works Section ---------- */
+.how-it-works-section {
+    padding: 80px 0;
+    background: var(--bg-white);
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    position: relative;
+}
+
+.step-card {
+    text-align: center;
+    padding: 32px 24px;
+    position: relative;
+}
+
+.step-number {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.step-card h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.step-card p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ---------- Testimonials Section ---------- */
+.testimonials-section {
+    padding: 80px 0;
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.testimonial-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    transition: all 0.3s var(--ease);
+}
+
+.testimonial-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.testimonial-stars {
+    color: #f59e0b;
+    font-size: 0.875rem;
+    margin-bottom: 12px;
+}
+
+.testimonial-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 16px;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.testimonial-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.testimonial-author .name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.testimonial-author .role {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ---------- CTA Section ---------- */
+.cta-section {
+    padding: 80px 0;
+    background: var(--bg-white);
+}
+
+.cta-box {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: var(--radius-xl);
+    padding: 60px 40px;
+    text-align: center;
+    color: #fff;
+}
+
+.cta-box h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.cta-box p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 28px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-white {
+    background: #fff;
+    color: var(--primary);
+    padding: 14px 32px;
+    border-radius: var(--radius-xl);
+    font-weight: 700;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s var(--ease);
+    text-decoration: none;
+}
+
+.btn-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Extra Feature Card Colors ---------- */
+.icon-green {
+    background: var(--green-light);
+    color: var(--green);
+}
+
+.feature-card:hover .icon-green {
+    background: var(--green) !important;
+    color: #fff !important;
+}
+
+.icon-orange {
+    background: var(--orange-light);
+    color: var(--orange);
+}
+
+.feature-card:hover .icon-orange {
+    background: var(--orange) !important;
+    color: #fff !important;
+}
+
+.icon-cyan {
+    background: var(--cyan-light);
+    color: var(--cyan);
+}
+
+.feature-card:hover .icon-cyan {
+    background: var(--cyan) !important;
+    color: #fff !important;
+}
+
+/* ---------- Center subheadings in new sections ---------- */
+.how-it-works-section .section-header p,
+.testimonials-section .section-header p {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cta-box {
+        padding: 40px 24px;
+    }
+
+    .cta-box h2 {
+        font-size: 1.5rem;
+    }
+}
