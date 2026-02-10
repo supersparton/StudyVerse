@@ -1,0 +1,59 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('media/herow.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.singup {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(3px);
+    padding: 20px;
+    border-radius: 20px;
+    border: 0.5px solid rgb(255, 255, 255);
+    width: 350px;
+}
+
+h1 {
+    text-align: center;
+}
+
+input {
+    width: 95%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 0px solid;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    font-size: large;
+
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: rgb(76, 175, 80);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: large;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: rgb(63, 145, 66);
+}
