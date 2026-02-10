@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - StudyVerse</title>
+    <meta name="description" content="Your StudyVerse student dashboard — track tasks, communities, and study streaks.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="layout-dashboard">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><span class="material-symbols-outlined">school</span></div>
+                <div class="brand-info">
+                    <h1>StudyVerse</h1>
+                    <p>Student Platform</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html" class="nav-item active"><span
+                                class="material-symbols-outlined">dashboard</span> Dashboard</a></li>
+                    <li><a href="notes.html" class="nav-item"><span class="material-symbols-outlined">description</span>
+                            My Notes</a></li>
+                    <li><a href="tasks.html" class="nav-item"><span
+                                class="material-symbols-outlined">check_circle</span> Tasks <span
+                                class="nav-badge">4</span></a></li>
+                    <li><a href="pomodoro.html" class="nav-item"><span class="material-symbols-outlined">timer</span>
+                            Pomodoro</a></li>
+                    <li><a href="communities.html" class="nav-item"><span
+                                class="material-symbols-outlined">groups</span> Communities</a></li>
+                    <li><a href="analytics.html" class="nav-item"><span
+                                class="material-symbols-outlined">bar_chart</span> Analytics</a></li>
+                    <li><a href="resources.html" class="nav-item"><span class="material-symbols-outlined">folder</span>
+                            Resources</a></li>
+                </ul>
+                <div class="sidebar-section-title">Favorites</div>
+                <ul>
+                    <li><a href="#" class="sidebar-fav-item"><span class="dot" style="background: #ec4899;"></span>
+                            Calculus 101</a></li>
+                    <li><a href="#" class="sidebar-fav-item"><span class="dot" style="background: #06b6d4;"></span> Art
+                            History</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-user">
+                <a href="profile.html">
+                    <div class="user-avatar">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB64GHbvy-PzYwINkrXjcZMERp_jy83KwV5j6NTQJkoP7oqCMgprEMUJrrWC7xmsZURFi0A2P9JG1Y8Z_QqwfIcd12HZo9IXLjP3nRUVk89Dj1NaXOxR_g7jYuyOqcwzXBbCHnTW2WKaQW3bA2rTbut0ZjGe7TGyW1y79-ErKFSejyqpwIa41mif4cXA45DEBZEMjGnlLwMHXVBttS1RUUxGn9exdAa7Kw1l9kqE4S4R3pWOMfWJy1vOJl89lS-h3G1VE6L5qX7H4fW"
+                            alt="Alex Student">
+                        <span class="status-dot"></span>
+                    </div>
+                    <div class="user-info">
+                        <span class="name">Alex Student</span>
+                        <span class="plan">Pro Plan</span>
+                    </div>
+                    <span class="material-symbols-outlined" style="color: var(--text-muted);">expand_more</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Search notes, tasks, or communities...">
+                </div>
+                <div class="header-actions">
+                    <a href="notes.html" class="btn btn-outline text-sm"><span class="material-symbols-outlined"
+                            style="font-size:18px">add</span> New Note</a>
+                    <a href="pomodoro.html" class="btn btn-primary"><span class="material-symbols-outlined"
+                            style="font-size:18px">timer</span> Start Focus Session</a>
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="notif-dot"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-scroll">
+                <div class="content-grid">
+
+                    <!-- Welcome -->
+                    <section class="welcome-section fade-in-up">
+                        <div class="welcome-text">
+                            <h1>Good evening, Alex! 👋</h1>
+                            <p>You've completed 80% of your weekly goals. Keep up the momentum!</p>
+                        </div>
+                        <div class="streak-card">
+                            <div class="streak-info">
+                                <span class="streak-label">Current Streak</span>
+                                <div class="streak-value">
+                                    5 Days
+                                    <span class="material-symbols-outlined fire-icon">local_fire_department</span>
+                                </div>
+                            </div>
+                            <div class="streak-ring">80%</div>
+                        </div>
+                    </section>
+
+                    <!-- Stats -->
+                    <section class="stats-grid fade-in-up fade-in-up-delay-1">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: var(--indigo-light); color: var(--primary);">
+                                    <span class="material-symbols-outlined">schedule</span>
+                                </div>
+                                <span class="stat-trend">
+                                    <span class="material-symbols-outlined" style="font-size:16px">trending_up</span>
+                                    +10%
+                                </span>
+                            </div>
+                            <h3>12h 30m</h3>
+                            <p>Focus Time this week</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: var(--orange-light); color: var(--orange);">
+                                    <span class="material-symbols-outlined">check_box</span>
+                                </div>
+                                <span class="badge badge-orange">1 Urgent</span>
+                            </div>
+                            <h3>4</h3>
+                            <p>Tasks Pending</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: var(--cyan-light); color: var(--cyan);">
+                                    <span class="material-symbols-outlined">share</span>
+                                </div>
+                            </div>
+                            <h3>12</h3>
+                            <p>Resources Shared</p>
+                        </div>
+                    </section>
+
+                    <!-- Tasks + Communities -->
+                    <section class="main-grid fade-in-up fade-in-up-delay-2">
+                        <!-- Tasks -->
+                        <div class="tasks-card">
+                            <div class="card-header">
+                                <h3>Upcoming Tasks</h3>
+                                <a href="tasks.html">View All</a>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item">
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-info">
+                                        <span class="task-name">Review Calculus Chapter 4</span>
+                                        <span class="task-meta">Math 201 • Today</span>
+                                    </div>
+                                    <span class="badge badge-red">High</span>
+                                </div>
+                                <div class="task-item">
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-info">
+                                        <span class="task-name">Submit History Essay Draft</span>
+                                        <span class="task-meta">History 101 • Tomorrow</span>
+                                    </div>
+                                    <span class="badge badge-orange">Med</span>
+                                </div>
+                                <div class="task-item">
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-info">
+                                        <span class="task-name">Group Project Meeting</span>
+                                        <span class="task-meta">Design 300 • Wed, 2:00 PM</span>
+                                    </div>
+                                    <span class="badge badge-green">Low</span>
+                                </div>
+                                <div class="task-item">
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-info">
+                                        <span class="task-name">Read Chapter 5: Organic Chemistry</span>
+                                        <span class="task-meta">Chemistry 101 • Wed</span>
+                                    </div>
+                                    <span class="badge badge-green">Low</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Communities -->
+                        <div class="communities-col">
+                            <div class="col-header">
+                                <h3>Your Communities</h3>
+                                <button class="icon-btn"><span
+                                        class="material-symbols-outlined">add_circle</span></button>
+                            </div>
+
+                            <div class="community-card">
+                                <div class="cover"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQ3_SNJi9MVBcw1dUDt8UpLhYc1P9OnCpT1oyrIdGJ1jmD8lign-5v1UvIpTRygbLoiOpvsxJiUTkWHj91Q0bztMmo84mlRWYp2SHfFBIuIDh3REEf-T59c7ncUoYTRLPII_hy0MFjW-2IiFUkNOKv_893gOeSJv7l-meEnvBR-e_NP7Rx6HkXCCkQTSMHyK6QT-fVfUnqlEtbzyczR91e_YR_PCWMZfsFGtVsIQDTctN1ToVeGIqvGk3_wkE4omfGKJOVbxNQZhAr')">
+                                </div>
+                                <div class="card-icon" style="background: var(--primary);">
+                                    <span class="material-symbols-outlined">science</span>
+                                </div>
+                                <div class="card-body">
+                                    <h4>Physics 101</h4>
+                                    <p class="members">128 Members • 5 Online</p>
+                                    <div class="card-footer">
+                                        <div class="avatar-stack">
+                                            <img class="avatar avatar-sm"
+                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFgIDVq7-Cp7xewVFhDKb8rp7dNL39seoy2wtua9zI8zHGYonjhtSdgLHJ8oXWrUKoe_ZeBTYSZeFkzJukI7A9uvFk-lh4tscjDvTEpIAC39_uftElnvD37jAx_O-dfticIsyu8PQ9p2N6YiRJtm2gKsuYV1we28_30g5ThtfSlz3DqBjKisyBmfvLBgGLMqpsAi8z_MKCjIcKYjTCS5Mdu3qxzvWPguCb962aXnFi3sTA_eNLdUAZ_36tj2WzA8UO4KVnf0JwXaDH"
+                                                alt="Member">
+                                            <img class="avatar avatar-sm"
+                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzuDramfxO2Haqx8TPejJ7WtJBZ2sKoc1ULzY08vAQgZLSHMJbZ4L2W47aCkPzORXRiAaLl85l6WRIPowuifkmNeNUsleGdV_cZIweHKNQLoHDuXPBc-Rs8xFM-nPgH_KR69uXI9xUAmdrYa5pfC7rEf_XdHZvIU-bWQxUquZN9piYEmrcmOOZ56A9d8B3jArQB0afC7bNbQHt1bfaVvxyCImMdzPjqMIIXf3ZnZc1D-7CSG20AC9Ctxv8770VD2q42Zg1RCZ1x2mv"
+                                                alt="Member">
+                                        </div>
+                                        <span class="action-text">Join Call</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="community-card">
+                                <div class="cover"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuByHl62AaC-yCUzNQV1eJxvOUZfDbLtXDuwdQsPpynqg58VPAPh7m6CJBUWsMi11F3Y62zJXxzweiok71-VTQ_0J6tbOXadAaz2wFi6jPOpMdNCoHjKHBCH8yLthbUGQuIpiy7_u-F5Gef-aqjOc4lI9adD9u1TCjt0tInMWV4Ht3ucgB4R0YPWQ2ZxMMHQkRH_oOlkWiHunXxUFaNluiRwieWFnNgcrG9UH6254CllJk5urexzsRf6ZoPTj1RVE7cHuzRRRQR3AJ8B')">
+                                </div>
+                                <div class="card-icon" style="background: var(--pink);">
+                                    <span class="material-symbols-outlined">brush</span>
+                                </div>
+                                <div class="card-body">
+                                    <h4>Design Thinkers</h4>
+                                    <p class="members">84 Members • 12 Online</p>
+                                    <div class="card-footer">
+                                        <div class="avatar-stack">
+                                            <img class="avatar avatar-sm"
+                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6KNusrWucQaVu1A0jakP5jLsxlzeC9KHGQceevnvW-8cMycwZ5MPcqFLC4-2cwLvbki_P477NDDxtFDT5AkDkGYBeo43a6AEfuUoPyhiPOmI7OVYiNXFQvw4acPxsohA2sfJiQ7wd68fidLxnunzZl0JgD3vAWTHym7Njjdd2fWwxmDQEAF38kYWsq8kh3ZXHgtxXNceFfFx6i82j8mHP4z0dms2rgKFYsEEz0Gf18Gf3Qd1Qzf02D2pZX-4ygbvzj459vIh3m9a4"
+                                                alt="Member">
+                                        </div>
+                                        <span class="action-text">New Post</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="community-card">
+                                <div class="cover"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4qny9mgkNlfbxHyNGYnT3elppFd5-kLzLlhWTmpUDNJ3I_5Yib6i1juazQUqGi25052ChwWd8DrwXmexkntL2mdgTugmFUqNwzEy-itWzlHsnKAh85bOYXt1iN7BnbkSYBsj7a-GaWf40WQ4IGA6VFTIlsvwzcSOatYaVJWtbD03dJjgnp6P8kR2BbwBfsokMVdNZ5A_xZSRg6SQo8R08agheOk9WrWVyQ0gE_IJpfLpHdc136w_4RGLiykYslkbBqCm3pqah6OVT')">
+                                </div>
+                                <div class="card-icon" style="background: var(--green);">
+                                    <span class="material-symbols-outlined">terminal</span>
+                                </div>
+                                <div class="card-body">
+                                    <h4>Late Night Coders</h4>
+                                    <p class="members">204 Members • 42 Online</p>
+                                    <div class="card-footer">
+                                        <div class="avatar-stack">
+                                            <img class="avatar avatar-sm"
+                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwXDG_Sg5M9ku6EZXkI87YVP2V_aVAaW85dd2ZHqQeGPVtYRtIW5J2O4VaCKQPtnwmBwSwLLAkpOHIv7LBdl3RWhmJbLJJAcxzGo7fcnc4_bvvWAQwdXVvUdhHmBROcgq3bc9-WU0Okj6Fc0ms354Y5DbYb0ipC_2BumHscTMOU4-JaJyKt2MH3JtvMvH0ewLiQwgef8b1t3hhk4DF167wYGZlI8Gd7VyRArbGX2fugQVEX-rY6s_Cr9rNhTRiZQ63isJnc3txds1H"
+                                                alt="Member">
+                                        </div>
+                                        <span class="action-text">Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <footer style="text-align: center; padding: 24px 0; font-size: 0.75rem; color: var(--text-muted);">
+                        © 2024 StudyVerse. Empowering Students Worldwide.
+                    </footer>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

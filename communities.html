@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communities - StudyVerse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="layout-dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><span class="material-symbols-outlined">school</span></div>
+                <div class="brand-info">
+                    <h1>StudyVerse</h1>
+                    <p>Student Platform</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html" class="nav-item"><span
+                                class="material-symbols-outlined">dashboard</span> Dashboard</a></li>
+                    <li><a href="notes.html" class="nav-item"><span class="material-symbols-outlined">description</span>
+                            My Notes</a></li>
+                    <li><a href="tasks.html" class="nav-item"><span
+                                class="material-symbols-outlined">check_circle</span> Tasks <span
+                                class="nav-badge">4</span></a></li>
+                    <li><a href="pomodoro.html" class="nav-item"><span class="material-symbols-outlined">timer</span>
+                            Pomodoro</a></li>
+                    <li><a href="communities.html" class="nav-item active"><span
+                                class="material-symbols-outlined">groups</span> Communities</a></li>
+                    <li><a href="analytics.html" class="nav-item"><span
+                                class="material-symbols-outlined">bar_chart</span> Analytics</a></li>
+                    <li><a href="resources.html" class="nav-item"><span class="material-symbols-outlined">folder</span>
+                            Resources</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-user">
+                <a href="profile.html">
+                    <div class="user-avatar">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB64GHbvy-PzYwINkrXjcZMERp_jy83KwV5j6NTQJkoP7oqCMgprEMUJrrWC7xmsZURFi0A2P9JG1Y8Z_QqwfIcd12HZo9IXLjP3nRUVk89Dj1NaXOxR_g7jYuyOqcwzXBbCHnTW2WKaQW3bA2rTbut0ZjGe7TGyW1y79-ErKFSejyqpwIa41mif4cXA45DEBZEMjGnlLwMHXVBttS1RUUxGn9exdAa7Kw1l9kqE4S4R3pWOMfWJy1vOJl89lS-h3G1VE6L5qX7H4fW"
+                            alt="Alex">
+                        <span class="status-dot"></span>
+                    </div>
+                    <div class="user-info"><span class="name">Alex Student</span><span class="plan">Pro Plan</span>
+                    </div>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="search-bar">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Search communities...">
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary"><span class="material-symbols-outlined"
+                            style="font-size:18px">add</span> Create Community</button>
+                    <button class="icon-btn"><span class="material-symbols-outlined">notifications</span><span
+                            class="notif-dot"></span></button>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+                <div class="content-grid">
+
+                    <div class="fade-in-up">
+                        <h1 style="font-size:1.75rem; margin-bottom:4px;">Explore Communities</h1>
+                        <p style="color:var(--text-secondary); margin-bottom:24px;">Find and join study groups, clubs,
+                            and collaborative spaces.</p>
+                    </div>
+
+                    <div class="task-filters fade-in-up fade-in-up-delay-1">
+                        <button class="filter-btn active">All</button>
+                        <button class="filter-btn">Science</button>
+                        <button class="filter-btn">Arts</button>
+                        <button class="filter-btn">Technology</button>
+                        <button class="filter-btn">Languages</button>
+                        <button class="filter-btn">Sports</button>
+                    </div>
+
+                    <div class="communities-grid fade-in-up fade-in-up-delay-2">
+
+                        <div class="community-explore-card">
+                            <div class="card-cover"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQ3_SNJi9MVBcw1dUDt8UpLhYc1P9OnCpT1oyrIdGJ1jmD8lign-5v1UvIpTRygbLoiOpvsxJiUTkWHj91Q0bztMmo84mlRWYp2SHfFBIuIDh3REEf-T59c7ncUoYTRLPII_hy0MFjW-2IiFUkNOKv_893gOeSJv7l-meEnvBR-e_NP7Rx6HkXCCkQTSMHyK6QT-fVfUnqlEtbzyczR91e_YR_PCWMZfsFGtVsIQDTctN1ToVeGIqvGk3_wkE4omfGKJOVbxNQZhAr')">
+                                <span class="member-count">128 members</span>
+                            </div>
+                            <div class="card-content">
+                                <h4>Physics 101</h4>
+                                <p>Study group for introductory physics — mechanics, thermodynamics, and optics.</p>
+                                <button class="btn btn-primary" style="width:100%;">Join Community</button>
+                            </div>
+                        </div>
+
+                        <div class="community-explore-card">
+                            <div class="card-cover"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuByHl62AaC-yCUzNQV1eJxvOUZfDbLtXDuwdQsPpynqg58VPAPh7m6CJBUWsMi11F3Y62zJXxzweiok71-VTQ_0J6tbOXadAaz2wFi6jPOpMdNCoHjKHBCH8yLthbUGQuIpiy7_u-F5Gef-aqjOc4lI9adD9u1TCjt0tInMWV4Ht3ucgB4R0YPWQ2ZxMMHQkRH_oOlkWiHunXxUFaNluiRwieWFnNgcrG9UH6254CllJk5urexzsRf6ZoPTj1RVE7cHuzRRRQR3AJ8B')">
+                                <span class="member-count">84 members</span>
+                            </div>
+                            <div class="card-content">
+                                <h4>Design Thinkers</h4>
+                                <p>A creative space for UI/UX, graphic design, and visual arts enthusiasts.</p>
+                                <button class="btn btn-outline" style="width:100%;">Joined</button>
+                            </div>
+                        </div>
+
+                        <div class="community-explore-card">
+                            <div class="card-cover"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4qny9mgkNlfbxHyNGYnT3elppFd5-kLzLlhWTmpUDNJ3I_5Yib6i1juazQUqGi25052ChwWd8DrwXmexkntL2mdgTugmFUqNwzEy-itWzlHsnKAh85bOYXt1iN7BnbkSYBsj7a-GaWf40WQ4IGA6VFTIlsvwzcSOatYaVJWtbD03dJjgnp6P8kR2BbwBfsokMVdNZ5A_xZSRg6SQo8R08agheOk9WrWVyQ0gE_IJpfLpHdc136w_4RGLiykYslkbBqCm3pqah6OVT')">
+                                <span class="member-count">204 members</span>
+                            </div>
+                            <div class="card-content">
+                                <h4>Late Night Coders</h4>
+                                <p>Code together, debug together. Open 24/7 for developers of all levels.</p>
+                                <button class="btn btn-primary" style="width:100%;">Join Community</button>
+                            </div>
+                        </div>
+
+                        <div class="community-explore-card">
+                            <div class="card-cover"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC3xZoE86Cs92SqHIiXb9RRKduNyVfSZa9kLeOLWERpuTZV721RdkyxyfWQSqyjGIwEwWwU7oIlaAlvuo30vYUu_X4tT1DU-eDHcwvwdaO1ruZeWUDKMEnuZd2Zqt8PTRkifd0gn0yWaMikDAZpd9IyyZJB7vujfSql6hBVlqpTjVGSMACWC1NfBGe6T2YIZw8EPEkiqgV7cDZlu1_Fg_ER7LnNyMlcGlky33P_PjB5I5yEn_NRouOaYT2m6csNaq8dRz1e0GXWMRx1')">
+                                <span class="member-count">312 members</span>
+                            </div>
+                            <div class="card-content">
+                                <h4>Study Buddies</h4>
+                                <p>Find your accountability partner and study together in virtual rooms.</p>
+                                <button class="btn btn-primary" style="width:100%;">Join Community</button>
+                            </div>
+                        </div>
+
+                        <div class="community-explore-card">
+                            <div class="card-cover"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuARatXoiN_ajOrojIhrxJn91qlFNq27ob8bHzrn_ATjgw_547AURWP4HktDEE5wtQutOKiYfEOoJcLClH3J2wFPVMeLiW5edgFBfoqxEklp9O0tN14misrYc3ffOQ5PHddPmKkWUEcWz1rXkgDhJsG4vKKrxYshIPE80wWDaImQ3U-eIkqKFUGvW1HFGpkL6zbjpYbyOoS4xJwF0P6FZCmivh0nUglkLpFHHOc1dzOjUxJrSOpRekKrVwo66K6p-PbJReMdCpIx0oEp')">
+                                <span class="member-count">156 members</span>
+                            </div>
+                            <div class="card-content">
+                                <h4>Lofi Study Room</h4>
+                                <p>Chill beats, focused minds. Join and study with ambient music 24/7.</p>
+                                <button class="btn btn-primary" style="width:100%;">Join Community</button>
+                            </div>
+                        </div>
+
+                        <div class="community-explore-card">
+                            <div class="card-cover"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCgnc6ytT5lb6RlycHKT6xjZyeBAlg2s6l7iKi-UZ2ysvQYZI1J3aG_gKs01mGmHRJBWFTvWIkj5MLVXg2eyS1aSsJFqgtPpe77MqNww5XWSCo_A_-ypdzQCRVCV9AMDjZHH4rXojiPEkVv7oS_bJFIji8lSRMFdNblvHLEcGbHtzIPZt_YeE9SLBJyYu-m0cDSyuDVc3b6ejahhfpCqSTq3CcGBKga6_1u2K-HAc4C5OVKi7N24ZeGcksc5cmtHHUJi3tS7eKcYKCu')">
+                                <span class="member-count">92 members</span>
+                            </div>
+                            <div class="card-content">
+                                <h4>Math Olympiad Prep</h4>
+                                <p>Advanced problem solving and competition preparation group.</p>
+                                <button class="btn btn-primary" style="width:100%;">Join Community</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer - StudyVerse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="layout-dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><span class="material-symbols-outlined">school</span></div>
+                <div class="brand-info">
+                    <h1>StudyVerse</h1>
+                    <p>Student Platform</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html" class="nav-item"><span
+                                class="material-symbols-outlined">dashboard</span> Dashboard</a></li>
+                    <li><a href="notes.html" class="nav-item"><span class="material-symbols-outlined">description</span>
+                            My Notes</a></li>
+                    <li><a href="tasks.html" class="nav-item"><span
+                                class="material-symbols-outlined">check_circle</span> Tasks <span
+                                class="nav-badge">4</span></a></li>
+                    <li><a href="pomodoro.html" class="nav-item active"><span
+                                class="material-symbols-outlined">timer</span> Pomodoro</a></li>
+                    <li><a href="communities.html" class="nav-item"><span
+                                class="material-symbols-outlined">groups</span> Communities</a></li>
+                    <li><a href="analytics.html" class="nav-item"><span
+                                class="material-symbols-outlined">bar_chart</span> Analytics</a></li>
+                    <li><a href="resources.html" class="nav-item"><span class="material-symbols-outlined">folder</span>
+                            Resources</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-user">
+                <a href="profile.html">
+                    <div class="user-avatar">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB64GHbvy-PzYwINkrXjcZMERp_jy83KwV5j6NTQJkoP7oqCMgprEMUJrrWC7xmsZURFi0A2P9JG1Y8Z_QqwfIcd12HZo9IXLjP3nRUVk89Dj1NaXOxR_g7jYuyOqcwzXBbCHnTW2WKaQW3bA2rTbut0ZjGe7TGyW1y79-ErKFSejyqpwIa41mif4cXA45DEBZEMjGnlLwMHXVBttS1RUUxGn9exdAa7Kw1l9kqE4S4R3pWOMfWJy1vOJl89lS-h3G1VE6L5qX7H4fW"
+                            alt="Alex">
+                        <span class="status-dot"></span>
+                    </div>
+                    <div class="user-info"><span class="name">Alex Student</span><span class="plan">Pro Plan</span>
+                    </div>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="search-bar">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn"><span class="material-symbols-outlined">notifications</span><span
+                            class="notif-dot"></span></button>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+                <div class="content-grid">
+
+                    <div class="fade-in-up" style="text-align:center; margin-bottom:8px;">
+                        <h1 style="font-size:1.75rem; margin-bottom:4px;">Pomodoro Timer</h1>
+                        <p style="color:var(--text-secondary);">Stay focused with timed study sessions.</p>
+                    </div>
+
+                    <!-- Timer Mode Tabs -->
+                    <div class="pomodoro-tabs fade-in-up fade-in-up-delay-1">
+                        <button class="pomo-tab active">Focus</button>
+                        <button class="pomo-tab">Short Break</button>
+                        <button class="pomo-tab">Long Break</button>
+                    </div>
+
+                    <!-- Timer Display -->
+                    <div class="pomodoro-timer-container fade-in-up fade-in-up-delay-2">
+                        <div class="timer-ring">
+                            <div class="timer-display">
+                                <span class="timer-digits">25:00</span>
+                                <span class="timer-label">Focus Session</span>
+                            </div>
+                        </div>
+                        <div class="timer-controls">
+                            <button class="timer-btn secondary"><span
+                                    class="material-symbols-outlined">restart_alt</span></button>
+                            <button class="timer-btn primary"><span
+                                    class="material-symbols-outlined">play_arrow</span></button>
+                            <button class="timer-btn secondary"><span
+                                    class="material-symbols-outlined">skip_next</span></button>
+                        </div>
+                    </div>
+
+                    <!-- Session Stats -->
+                    <div class="pomodoro-stats fade-in-up fade-in-up-delay-3">
+                        <div class="pomo-stat-card">
+                            <span class="material-symbols-outlined"
+                                style="color:var(--primary); font-size:28px;">local_fire_department</span>
+                            <div>
+                                <h4>4</h4>
+                                <p>Sessions Today</p>
+                            </div>
+                        </div>
+                        <div class="pomo-stat-card">
+                            <span class="material-symbols-outlined"
+                                style="color:var(--green); font-size:28px;">schedule</span>
+                            <div>
+                                <h4>1h 40m</h4>
+                                <p>Total Focus</p>
+                            </div>
+                        </div>
+                        <div class="pomo-stat-card">
+                            <span class="material-symbols-outlined"
+                                style="color:var(--orange); font-size:28px;">emoji_events</span>
+                            <div>
+                                <h4>7 Day</h4>
+                                <p>Current Streak</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Task -->
+                    <div class="pomodoro-current-task fade-in-up fade-in-up-delay-4">
+                        <h3 style="margin-bottom:12px;">Currently Working On</h3>
+                        <div class="current-task-card">
+                            <div>
+                                <h4>Review Calculus Chapter 4</h4>
+                                <p style="color:var(--text-muted); font-size:0.85rem;">Mathematics — Due today</p>
+                            </div>
+                            <span class="badge badge-red">High</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
