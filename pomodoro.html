@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pomodoro.css">
 </head>
 
 <body>
@@ -78,25 +79,25 @@
 
                     <!-- Timer Mode Tabs -->
                     <div class="pomodoro-tabs fade-in-up fade-in-up-delay-1">
-                        <button class="pomo-tab active">Focus</button>
-                        <button class="pomo-tab">Short Break</button>
-                        <button class="pomo-tab">Long Break</button>
+                        <button class="pomo-tab active" onclick="switchMode('focus')">Focus</button>
+                        <button class="pomo-tab" onclick="switchMode('short')">Short Break</button>
+                        <button class="pomo-tab" onclick="switchMode('long')">Long Break</button>
                     </div>
 
                     <!-- Timer Display -->
                     <div class="pomodoro-timer-container fade-in-up fade-in-up-delay-2">
                         <div class="timer-ring">
                             <div class="timer-display">
-                                <span class="timer-digits">25:00</span>
-                                <span class="timer-label">Focus Session</span>
+                                <span class="timer-digits" id="timerDigits">25:00</span>
+                                <span class="timer-label" id="timerLabel">Focus Session</span>
                             </div>
                         </div>
                         <div class="timer-controls">
-                            <button class="timer-btn secondary"><span
+                            <button class="timer-btn secondary" id="resetBtn" onclick="resetTimer()"><span
                                     class="material-symbols-outlined">restart_alt</span></button>
-                            <button class="timer-btn primary"><span
-                                    class="material-symbols-outlined">play_arrow</span></button>
-                            <button class="timer-btn secondary"><span
+                            <button class="timer-btn primary" id="playBtn" onclick="toggleTimer()"><span
+                                    class="material-symbols-outlined" id="playIcon">play_arrow</span></button>
+                            <button class="timer-btn secondary" id="skipBtn" onclick="skipTimer()"><span
                                     class="material-symbols-outlined">skip_next</span></button>
                         </div>
                     </div>
@@ -107,7 +108,7 @@
                             <span class="material-symbols-outlined"
                                 style="color:var(--primary); font-size:28px;">local_fire_department</span>
                             <div>
-                                <h4>4</h4>
+                                <h4 id="sessionsCount">0</h4>
                                 <p>Sessions Today</p>
                             </div>
                         </div>
@@ -115,7 +116,7 @@
                             <span class="material-symbols-outlined"
                                 style="color:var(--green); font-size:28px;">schedule</span>
                             <div>
-                                <h4>1h 40m</h4>
+                                <h4 id="totalFocus">0m</h4>
                                 <p>Total Focus</p>
                             </div>
                         </div>
@@ -145,6 +146,136 @@
             </div>
         </main>
     </div>
+
+    <script>
+        // Timer durations in seconds for each mode
+        var modes = {
+            focus: { time: 25 * 60, label: 'Focus Session' },
+            short: { time: 5 * 60, label: 'Short Break' },
+            long: { time: 15 * 60, label: 'Long Break' }
+        };
+
+        var currentMode = 'focus';      // which mode is active
+        var timeLeft = modes.focus.time; // seconds remaining
+        var timerInterval = null;        // holds the setInterval ID
+        var isRunning = false;           // is the timer counting down?
+        var sessionsCompleted = 0;       // focus sessions completed today
+        var totalFocusSeconds = 0;       // total focus time in seconds
+
+        // Switches between Focus / Short Break / Long Break
+        function switchMode(mode) {
+            // Stop timer if running
+            clearInterval(timerInterval);
+            isRunning = false;
+
+            currentMode = mode;
+            timeLeft = modes[mode].time;
+
+            // Update display
+            updateDisplay();
+            document.getElementById('playIcon').textContent = 'play_arrow';
+            document.getElementById('timerLabel').textContent = modes[mode].label;
+
+            // Update active tab
+            var tabs = document.querySelectorAll('.pomo-tab');
+            tabs.forEach(function (tab) { tab.classList.remove('active'); });
+            if (mode === 'focus') tabs[0].classList.add('active');
+            if (mode === 'short') tabs[1].classList.add('active');
+            if (mode === 'long') tabs[2].classList.add('active');
+        }
+
+        // Formats seconds into MM:SS string
+        function formatTime(seconds) {
+            var m = Math.floor(seconds / 60);
+            var s = seconds % 60;
+            return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+        }
+
+        // Updates the timer digits on screen
+        function updateDisplay() {
+            document.getElementById('timerDigits').textContent = formatTime(timeLeft);
+        }
+
+        // Start or Pause the timer
+        function toggleTimer() {
+            if (isRunning) {
+                // Pause
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById('playIcon').textContent = 'play_arrow';
+            } else {
+                // Start
+                isRunning = true;
+                document.getElementById('playIcon').textContent = 'pause';
+                timerInterval = setInterval(function () {
+                    timeLeft--;
+                    updateDisplay();
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        document.getElementById('playIcon').textContent = 'play_arrow';
+                        onTimerComplete();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Called when a timer reaches 0:00
+        function onTimerComplete() {
+            if (currentMode === 'focus') {
+                sessionsCompleted++;
+                totalFocusSeconds += modes.focus.time;
+                updateStats();
+
+                // Auto-switch to short break after every focus, long break after 4
+                if (sessionsCompleted % 4 === 0) {
+                    switchMode('long');
+                } else {
+                    switchMode('short');
+                }
+            } else {
+                // After a break, go back to focus
+                switchMode('focus');
+            }
+            alert('Timer complete! 🎉');
+        }
+
+        // Updates the stats cards
+        function updateStats() {
+            document.getElementById('sessionsCount').textContent = sessionsCompleted;
+            var mins = Math.floor(totalFocusSeconds / 60);
+            if (mins >= 60) {
+                var h = Math.floor(mins / 60);
+                var m = mins % 60;
+                document.getElementById('totalFocus').textContent = h + 'h ' + m + 'm';
+            } else {
+                document.getElementById('totalFocus').textContent = mins + 'm';
+            }
+        }
+
+        // Reset timer back to current mode's default time
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeLeft = modes[currentMode].time;
+            updateDisplay();
+            document.getElementById('playIcon').textContent = 'play_arrow';
+        }
+
+        // Skip to the next mode
+        function skipTimer() {
+            if (currentMode === 'focus') {
+                if (sessionsCompleted > 0 && sessionsCompleted % 4 === 0) {
+                    switchMode('long');
+                } else {
+                    switchMode('short');
+                }
+            } else {
+                switchMode('focus');
+            }
+        }
+    </script>
 </body>
 
 </html>

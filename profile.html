@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - StudyVerse</title>
+    <meta name="description" content="Set up your StudyVerse student profile.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+
+<body>
+
+    <div class="layout-dashboard">
+
+        <!-- Sidebar (same as dashboard) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><span class="material-symbols-outlined">school</span></div>
+                <div class="brand-info">
+                    <h1>StudyVerse</h1>
+                    <p>Student Platform</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html" class="nav-item"><span
+                                class="material-symbols-outlined">dashboard</span> Dashboard</a></li>
+                    <li><a href="notes.html" class="nav-item"><span class="material-symbols-outlined">description</span>
+                            My Notes</a></li>
+                    <li><a href="tasks.html" class="nav-item"><span
+                                class="material-symbols-outlined">check_circle</span> Tasks</a></li>
+                    <li><a href="pomodoro.html" class="nav-item"><span class="material-symbols-outlined">timer</span>
+                            Pomodoro</a></li>
+                    <li><a href="communities.html" class="nav-item"><span
+                                class="material-symbols-outlined">groups</span> Communities</a></li>
+                    <li><a href="analytics.html" class="nav-item"><span
+                                class="material-symbols-outlined">bar_chart</span> Analytics</a></li>
+                    <li><a href="resources.html" class="nav-item"><span class="material-symbols-outlined">folder</span>
+                            Resources</a></li>
+                </ul>
+                <div class="sidebar-section-title">Account</div>
+                <ul>
+                    <li><a href="profile.html" class="nav-item active"><span
+                                class="material-symbols-outlined">person</span> My Profile</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-user">
+                <a href="profile.html">
+                    <div class="user-avatar">
+                        <span id="sidebar-avatar" style="font-size: 1.5rem; line-height: 1;">🧑‍🎓</span>
+                        <span class="status-dot"></span>
+                    </div>
+                    <div class="user-info">
+                        <span class="name" id="sidebar-name">New Student</span>
+                        <span class="plan">Free Plan</span>
+                    </div>
+                    <span class="material-symbols-outlined" style="color: var(--text-muted);">expand_more</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Search notes, tasks, or communities...">
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="notif-dot"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Profile Content -->
+            <div class="content-scroll">
+                <div class="content-grid">
+
+                    <div class="profile-page-header fade-in-up">
+                        <h1>My Profile</h1>
+                        <p>Choose your avatar and fill in your student details.</p>
+                    </div>
+
+                    <!-- Avatar Selection Card -->
+                    <div class="profile-card fade-in-up fade-in-up-delay-1">
+                        <div class="profile-card-title">Choose Your Avatar</div>
+                        <div class="profile-card-subtitle">Click on an avatar to select it</div>
+                        <div class="avatar-grid">
+                            <div class="avatar-option selected" onclick="selectAvatar(this)" data-avatar="🧑‍💻"
+                                style="background: #e0e7ff;">🧑‍💻</div>
+                            <div class="avatar-option" onclick="selectAvatar(this)" data-avatar="👩‍🔬"
+                                style="background: #fce7f3;">👩‍🔬</div>
+                            <div class="avatar-option" onclick="selectAvatar(this)" data-avatar="🧑‍🎓"
+                                style="background: #d1fae5;">🧑‍🎓</div>
+                            <div class="avatar-option" onclick="selectAvatar(this)" data-avatar="👨‍🚀"
+                                style="background: #e0f2fe;">👨‍🚀</div>
+                            <div class="avatar-option" onclick="selectAvatar(this)" data-avatar="🦸‍♂️"
+                                style="background: #fef3c7;">🦸‍♂️</div>
+                            <div class="avatar-option" onclick="selectAvatar(this)" data-avatar="🧑‍🎨"
+                                style="background: #ede9fe;">🧑‍🎨</div>
+                            <div class="avatar-option" onclick="selectAvatar(this)" data-avatar="🥷"
+                                style="background: #f1f5f9;">🥷</div>
+                            <div class="avatar-option" onclick="selectAvatar(this)" data-avatar="🧑‍🏫"
+                                style="background: #ffedd5;">🧑‍🏫</div>
+                        </div>
+                    </div>
+
+                    <!-- Student Details Card -->
+                    <div class="profile-card fade-in-up fade-in-up-delay-2">
+                        <div class="profile-card-title">Student Details</div>
+                        <div class="profile-card-subtitle">Fill in your academic information</div>
+
+                        <div class="profile-form-grid">
+                            <div class="form-group full-width">
+                                <label for="fullName">Full Name</label>
+                                <input class="form-input" id="fullName" type="text" placeholder="e.g. Poojan Shah">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="enrollmentNo">Enrollment No</label>
+                                <input class="form-input" id="enrollmentNo" type="text" placeholder="e.g. AU2140XXXXX">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="branch">Branch</label>
+                                <select id="branch" class="form-input">
+                                    <option value="" disabled selected>Select Branch</option>
+                                    <option value="CSE">Computer Science (CSE)</option>
+                                    <option value="ICT">ICT</option>
+                                    <option value="ECE">Electronics (ECE)</option>
+                                    <option value="ME">Mechanical (ME)</option>
+                                    <option value="CE">Civil (CE)</option>
+                                    <option value="EE">Electrical (EE)</option>
+                                    <option value="CHE">Chemical (CHE)</option>
+                                    <option value="MBA">MBA</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="semester">Semester</label>
+                                <select id="semester" class="form-input">
+                                    <option value="" disabled selected>Select Semester</option>
+                                    <option value="1">Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                    <option value="4">Semester 4</option>
+                                    <option value="5">Semester 5</option>
+                                    <option value="6">Semester 6</option>
+                                    <option value="7">Semester 7</option>
+                                    <option value="8">Semester 8</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="className">Class</label>
+                                <select id="className" class="form-input">
+                                    <option value="" disabled selected>Select Class</option>
+                                    <option value="CSE-A">CSE-A</option>
+                                    <option value="CSE-B">CSE-B</option>
+                                    <option value="ICT-A">ICT-A</option>
+                                    <option value="ICT-B">ICT-B</option>
+                                    <option value="ECE">ECE</option>
+                                    <option value="ME">ME</option>
+                                    <option value="CE">CE</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="batch">Batch</label>
+                                <select id="batch" class="form-input">
+                                    <option value="" disabled selected>Select Batch</option>
+                                    <option value="A1">A1</option>
+                                    <option value="A2">A2</option>
+                                    <option value="A3">A3</option>
+                                    <option value="A4">A4</option>
+                                    <option value="B1">B1</option>
+                                    <option value="B2">B2</option>
+                                    <option value="B3">B3</option>
+                                    <option value="B4">B4</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="passoutYear">Passout Year</label>
+                                <input class="form-input" id="passoutYear" type="text" placeholder="e.g. 2025">
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="btn btn-outline" onclick="resetForm()">Reset</button>
+                            <button class="btn btn-primary" onclick="saveProfile()">
+                                <span class="material-symbols-outlined" style="font-size:18px">save</span>
+                                Save Profile
+                            </button>
+                        </div>
+                    </div>
+
+                    <footer style="text-align: center; padding: 24px 0; font-size: 0.75rem; color: var(--text-muted);">
+                        © 2025 StudyVerse. Empowering Students Worldwide.
+                    </footer>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Currently selected avatar emoji
+        let selectedAvatar = '🧑‍💻';
+
+        // Called when user clicks an avatar
+        function selectAvatar(element) {
+            // Remove 'selected' class from all avatars
+            document.querySelectorAll('.avatar-option').forEach(function (el) {
+                el.classList.remove('selected');
+            });
+            // Add 'selected' to the clicked avatar
+            element.classList.add('selected');
+            // Store which emoji was picked
+            selectedAvatar = element.getAttribute('data-avatar');
+        }
+
+        // Called when 'Save Profile' button is clicked
+        function saveProfile() {
+            var fullName = document.getElementById('fullName').value;
+            var enrollmentNo = document.getElementById('enrollmentNo').value;
+            var branch = document.getElementById('branch').value;
+            var semester = document.getElementById('semester').value;
+            var className = document.getElementById('className').value;
+            var batch = document.getElementById('batch').value;
+            var passoutYear = document.getElementById('passoutYear').value;
+
+            // Check that all fields are filled
+            if (!fullName || !enrollmentNo || !branch || !semester || !className || !batch || !passoutYear) {
+                alert('Please fill in all fields!');
+                return;
+            }
+
+            // Save to localStorage
+            var profileData = {
+                avatar: selectedAvatar,
+                fullName: fullName,
+                enrollmentNo: enrollmentNo,
+                branch: branch,
+                semester: semester,
+                className: className,
+                batch: batch,
+                passoutYear: passoutYear
+            };
+            localStorage.setItem('studyverse_profile', JSON.stringify(profileData));
+
+            // Update sidebar name
+            document.getElementById('sidebar-name').textContent = fullName;
+            document.getElementById('sidebar-avatar').textContent = selectedAvatar;
+
+            alert('Profile saved successfully! ✅');
+        }
+
+        // Called when 'Reset' button is clicked
+        function resetForm() {
+            document.getElementById('fullName').value = '';
+            document.getElementById('enrollmentNo').value = '';
+            document.getElementById('branch').selectedIndex = 0;
+            document.getElementById('semester').selectedIndex = 0;
+            document.getElementById('className').selectedIndex = 0;
+            document.getElementById('batch').selectedIndex = 0;
+            document.getElementById('passoutYear').value = '';
+        }
+
+        // On page load, check if profile data exists in localStorage and fill the form
+        window.addEventListener('DOMContentLoaded', function () {
+            var saved = localStorage.getItem('studyverse_profile');
+            if (saved) {
+                var data = JSON.parse(saved);
+                document.getElementById('fullName').value = data.fullName || '';
+                document.getElementById('enrollmentNo').value = data.enrollmentNo || '';
+                document.getElementById('branch').value = data.branch || '';
+                document.getElementById('semester').value = data.semester || '';
+                document.getElementById('className').value = data.className || '';
+                document.getElementById('batch').value = data.batch || '';
+                document.getElementById('passoutYear').value = data.passoutYear || '';
+
+                // Select the saved avatar
+                selectedAvatar = data.avatar || '🧑‍💻';
+                document.querySelectorAll('.avatar-option').forEach(function (el) {
+                    el.classList.remove('selected');
+                    if (el.getAttribute('data-avatar') === selectedAvatar) {
+                        el.classList.add('selected');
+                    }
+                });
+
+                // Update sidebar
+                document.getElementById('sidebar-name').textContent = data.fullName;
+                document.getElementById('sidebar-avatar').textContent = selectedAvatar;
+            }
+        });
+    </script>
+
+</body>
+
+</html>

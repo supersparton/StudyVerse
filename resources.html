@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/resources.css">
 </head>
 
 <body>
@@ -31,8 +32,7 @@
                     <li><a href="notes.html" class="nav-item"><span class="material-symbols-outlined">description</span>
                             My Notes</a></li>
                     <li><a href="tasks.html" class="nav-item"><span
-                                class="material-symbols-outlined">check_circle</span> Tasks <span
-                                class="nav-badge">4</span></a></li>
+                                class="material-symbols-outlined">check_circle</span> Tasks</a></li>
                     <li><a href="pomodoro.html" class="nav-item"><span class="material-symbols-outlined">timer</span>
                             Pomodoro</a></li>
                     <li><a href="communities.html" class="nav-item"><span
@@ -75,122 +75,322 @@
 
                     <div class="fade-in-up">
                         <h1 style="font-size:1.75rem; margin-bottom:4px;">Resource Library</h1>
-                        <p style="color:var(--text-secondary); margin-bottom:24px;">Browse curated study materials,
-                            textbooks, and references.</p>
+                        <p style="color:var(--text-secondary); margin-bottom:20px;">Browse study materials organized by
+                            semester and subject.</p>
                     </div>
 
-                    <div class="task-filters fade-in-up fade-in-up-delay-1">
-                        <button class="filter-btn active">All</button>
-                        <button class="filter-btn">PDFs</button>
-                        <button class="filter-btn">Videos</button>
-                        <button class="filter-btn">Articles</button>
-                        <button class="filter-btn">Slides</button>
+                    <!-- Breadcrumb Navigation -->
+                    <div class="res-breadcrumb fade-in-up" id="breadcrumb">
+                        <span class="material-symbols-outlined" style="font-size:18px;">home</span>
+                        <a onclick="showSemesters()">All Semesters</a>
                     </div>
 
-                    <div class="resources-grid fade-in-up fade-in-up-delay-2">
-
-                        <div class="resource-card">
-                            <div class="resource-icon" style="background:var(--indigo-light); color:var(--primary);">
-                                <span class="material-symbols-outlined">picture_as_pdf</span>
-                            </div>
-                            <div class="resource-info">
-                                <h4>Calculus Cheat Sheet</h4>
-                                <p>Key formulas for limits, derivatives, and integrals.</p>
-                                <div class="resource-meta">
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">description</span> PDF · 2.4 MB</span>
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">download</span> 128</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="resource-card">
-                            <div class="resource-icon" style="background:var(--pink-light); color:var(--pink);">
-                                <span class="material-symbols-outlined">play_circle</span>
-                            </div>
-                            <div class="resource-info">
-                                <h4>Organic Chemistry Crash Course</h4>
-                                <p>30-min video covering functional groups and reactions.</p>
-                                <div class="resource-meta">
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">videocam</span> Video · 30 min</span>
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">visibility</span> 342</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="resource-card">
-                            <div class="resource-icon" style="background:var(--green-light); color:var(--green);">
-                                <span class="material-symbols-outlined">article</span>
-                            </div>
-                            <div class="resource-info">
-                                <h4>Renaissance Art — Study Guide</h4>
-                                <p>Comprehensive guide on Italian Renaissance artists and works.</p>
-                                <div class="resource-meta">
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">description</span> Article</span>
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">bookmark</span> 56</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="resource-card">
-                            <div class="resource-icon" style="background:var(--orange-light); color:var(--orange);">
-                                <span class="material-symbols-outlined">slideshow</span>
-                            </div>
-                            <div class="resource-info">
-                                <h4>Physics — Wave Optics Slides</h4>
-                                <p>Lecture slides covering interference, diffraction, and polarization.</p>
-                                <div class="resource-meta">
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">slideshow</span> Slides · 24 pages</span>
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">download</span> 89</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="resource-card">
-                            <div class="resource-icon" style="background:var(--purple-light); color:var(--purple);">
-                                <span class="material-symbols-outlined">picture_as_pdf</span>
-                            </div>
-                            <div class="resource-info">
-                                <h4>Linear Algebra Textbook (Ch 1-5)</h4>
-                                <p>Vectors, matrices, eigenvalues, and linear transformations.</p>
-                                <div class="resource-meta">
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">description</span> PDF · 18.6 MB</span>
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">download</span> 214</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="resource-card">
-                            <div class="resource-icon" style="background:var(--cyan-light); color:var(--cyan);">
-                                <span class="material-symbols-outlined">play_circle</span>
-                            </div>
-                            <div class="resource-info">
-                                <h4>UI/UX Design Fundamentals</h4>
-                                <p>Beginner-friendly video on design principles and tools.</p>
-                                <div class="resource-meta">
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">videocam</span> Video · 45 min</span>
-                                    <span><span class="material-symbols-outlined"
-                                            style="font-size:14px;">visibility</span> 178</span>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                    <!-- Dynamic Content Area -->
+                    <div id="resourceContent" class="fade-in-up fade-in-up-delay-1"></div>
 
                 </div>
             </div>
         </main>
     </div>
+
+    <script>
+        // ============================================
+        // RESOURCE DATA (Semester → Subject → Files)
+        // ============================================
+        var resourceData = {
+            "Semester 1": {
+                color: "#6366f1",
+                bg: "#e0e7ff",
+                subjects: {
+                    "Mathematics-I": [
+                        { name: "Calculus Cheat Sheet", type: "PDF", size: "2.4 MB", views: 342, downloads: 128, votes: 45 },
+                        { name: "Linear Algebra Notes", type: "PDF", size: "5.1 MB", views: 210, downloads: 98, votes: 32 },
+                        { name: "Trigonometry Formulas", type: "PDF", size: "1.2 MB", views: 189, downloads: 76, votes: 28 }
+                    ],
+                    "Physics": [
+                        { name: "Wave Optics Slides", type: "Slides", size: "3.8 MB", views: 156, downloads: 89, votes: 19 },
+                        { name: "Mechanics PYQ Solutions", type: "PDF", size: "4.2 MB", views: 298, downloads: 201, votes: 55 }
+                    ],
+                    "English": [
+                        { name: "Technical Writing Guide", type: "PDF", size: "1.8 MB", views: 98, downloads: 42, votes: 12 }
+                    ]
+                }
+            },
+            "Semester 2": {
+                color: "#ec4899",
+                bg: "#fce7f3",
+                subjects: {
+                    "Mathematics-II": [
+                        { name: "Differential Equations Notes", type: "PDF", size: "3.5 MB", views: 245, downloads: 112, votes: 38 },
+                        { name: "Laplace Transform Cheat Sheet", type: "PDF", size: "1.1 MB", views: 310, downloads: 189, votes: 52 }
+                    ],
+                    "Chemistry": [
+                        { name: "Organic Chemistry Crash Course", type: "Video", size: "30 min", views: 412, downloads: 0, votes: 64 },
+                        { name: "Periodic Table Notes", type: "PDF", size: "0.8 MB", views: 178, downloads: 95, votes: 21 }
+                    ],
+                    "BEE": [
+                        { name: "Circuit Analysis Solved Problems", type: "PDF", size: "6.2 MB", views: 223, downloads: 145, votes: 41 }
+                    ]
+                }
+            },
+            "Semester 3": {
+                color: "#10b981",
+                bg: "#d1fae5",
+                subjects: {
+                    "Data Structures": [
+                        { name: "DSA Complete Notes", type: "PDF", size: "8.4 MB", views: 567, downloads: 389, votes: 92 },
+                        { name: "Sorting Algorithms Visualized", type: "Video", size: "45 min", views: 342, downloads: 0, votes: 58 },
+                        { name: "Tree & Graph Problems", type: "PDF", size: "4.6 MB", views: 289, downloads: 198, votes: 47 }
+                    ],
+                    "OOP with Java": [
+                        { name: "Java OOP Concepts", type: "PDF", size: "3.2 MB", views: 334, downloads: 212, votes: 51 },
+                        { name: "Design Patterns Notes", type: "PDF", size: "2.9 MB", views: 198, downloads: 134, votes: 35 }
+                    ],
+                    "DBMS": [
+                        { name: "SQL Cheat Sheet", type: "PDF", size: "1.5 MB", views: 456, downloads: 312, votes: 78 },
+                        { name: "Normalization Examples", type: "PDF", size: "2.1 MB", views: 267, downloads: 178, votes: 43 }
+                    ]
+                }
+            },
+            "Semester 4": {
+                color: "#f59e0b",
+                bg: "#fef3c7",
+                subjects: {
+                    "Operating Systems": [
+                        { name: "OS Complete Notes", type: "PDF", size: "7.8 MB", views: 389, downloads: 256, votes: 68 },
+                        { name: "Process Scheduling Solved", type: "PDF", size: "3.4 MB", views: 234, downloads: 156, votes: 42 }
+                    ],
+                    "Computer Networks": [
+                        { name: "CN Handwritten Notes", type: "PDF", size: "12.3 MB", views: 445, downloads: 312, votes: 76 },
+                        { name: "TCP/IP Protocol Suite", type: "Slides", size: "5.6 MB", views: 198, downloads: 123, votes: 31 }
+                    ],
+                    "TOC": [
+                        { name: "Automata Theory Notes", type: "PDF", size: "4.5 MB", views: 312, downloads: 198, votes: 54 }
+                    ]
+                }
+            },
+            "Semester 5": {
+                color: "#8b5cf6",
+                bg: "#ede9fe",
+                subjects: {
+                    "Software Engineering": [
+                        { name: "SE Complete Notes", type: "PDF", size: "6.1 MB", views: 278, downloads: 189, votes: 45 },
+                        { name: "UML Diagrams Guide", type: "PDF", size: "3.3 MB", views: 198, downloads: 134, votes: 32 }
+                    ],
+                    "AI / ML": [
+                        { name: "Machine Learning Basics", type: "PDF", size: "5.8 MB", views: 412, downloads: 267, votes: 71 },
+                        { name: "Neural Networks Explained", type: "Video", size: "1 hr", views: 523, downloads: 0, votes: 89 }
+                    ]
+                }
+            },
+            "Semester 6": {
+                color: "#06b6d4",
+                bg: "#cffafe",
+                subjects: {
+                    "Web App Development": [
+                        { name: "HTML CSS JS Complete Guide", type: "PDF", size: "4.7 MB", views: 378, downloads: 245, votes: 62 },
+                        { name: "React Notes", type: "PDF", size: "3.9 MB", views: 289, downloads: 178, votes: 48 },
+                        { name: "Node.js Backend Tutorial", type: "Video", size: "2 hr", views: 234, downloads: 0, votes: 41 }
+                    ],
+                    "Compiler Design": [
+                        { name: "CD Complete Notes", type: "PDF", size: "5.4 MB", views: 198, downloads: 134, votes: 33 },
+                        { name: "Parsing Techniques", type: "PDF", size: "2.8 MB", views: 156, downloads: 98, votes: 24 }
+                    ],
+                    "Information Security": [
+                        { name: "Cryptography Basics", type: "PDF", size: "3.6 MB", views: 245, downloads: 167, votes: 39 }
+                    ]
+                }
+            },
+            "Semester 7": {
+                color: "#ef4444",
+                bg: "#fee2e2",
+                subjects: {
+                    "Cloud Computing": [
+                        { name: "AWS Fundamentals Notes", type: "PDF", size: "4.2 MB", views: 198, downloads: 134, votes: 29 }
+                    ],
+                    "Big Data": [
+                        { name: "Hadoop & Spark Notes", type: "PDF", size: "6.7 MB", views: 167, downloads: 112, votes: 25 }
+                    ]
+                }
+            },
+            "Semester 8": {
+                color: "#64748b",
+                bg: "#f1f5f9",
+                subjects: {
+                    "Project Work": [
+                        { name: "Report Writing Template", type: "PDF", size: "1.2 MB", views: 345, downloads: 278, votes: 56 },
+                        { name: "Presentation Guidelines", type: "Slides", size: "2.4 MB", views: 234, downloads: 189, votes: 42 }
+                    ]
+                }
+            }
+        };
+
+        // Track current navigation state
+        var currentSemester = null;
+        var currentSubject = null;
+
+        // Get file type icon & colors
+        function getFileStyle(type) {
+            switch (type) {
+                case 'PDF': return { icon: 'picture_as_pdf', bg: 'var(--indigo-light)', color: 'var(--primary)' };
+                case 'Video': return { icon: 'play_circle', bg: '#fce7f3', color: '#ec4899' };
+                case 'Slides': return { icon: 'slideshow', bg: 'var(--orange-light)', color: 'var(--orange)' };
+                default: return { icon: 'description', bg: 'var(--green-light)', color: 'var(--green)' };
+            }
+        }
+
+        // ============================================
+        // VIEW: Semester Folders
+        // ============================================
+        function showSemesters() {
+            currentSemester = null;
+            currentSubject = null;
+
+            document.getElementById('breadcrumb').innerHTML =
+                '<span class="material-symbols-outlined" style="font-size:18px;">home</span>' +
+                '<a onclick="showSemesters()"><b>All Semesters</b></a>';
+
+            var html = '<div class="folder-grid">';
+            for (var sem in resourceData) {
+                var data = resourceData[sem];
+                var subjectCount = Object.keys(data.subjects).length;
+                var totalFiles = 0;
+                for (var sub in data.subjects) {
+                    totalFiles += data.subjects[sub].length;
+                }
+                html += '<div class="folder-card" onclick="showSubjects(\'' + sem + '\')">' +
+                    '<div class="folder-icon" style="background:' + data.bg + '; color:' + data.color + ';">' +
+                    '<span class="material-symbols-outlined">folder</span></div>' +
+                    '<h4>' + sem + '</h4>' +
+                    '<span class="folder-count">' + subjectCount + ' subjects · ' + totalFiles + ' files</span>' +
+                    '</div>';
+            }
+            html += '</div>';
+            document.getElementById('resourceContent').innerHTML = html;
+        }
+
+        // ============================================
+        // VIEW: Subject Folders (inside a semester)
+        // ============================================
+        function showSubjects(semester) {
+            currentSemester = semester;
+            currentSubject = null;
+
+            var data = resourceData[semester];
+            document.getElementById('breadcrumb').innerHTML =
+                '<span class="material-symbols-outlined" style="font-size:18px;">home</span>' +
+                '<a onclick="showSemesters()">All Semesters</a>' +
+                '<span class="sep">›</span>' +
+                '<a onclick="showSubjects(\'' + semester + '\')"><b>' + semester + '</b></a>';
+
+            var html = '<div class="folder-grid">';
+            for (var sub in data.subjects) {
+                var fileCount = data.subjects[sub].length;
+                html += '<div class="folder-card" onclick="showFiles(\'' + semester + '\', \'' + sub + '\')">' +
+                    '<div class="folder-icon" style="background:' + data.bg + '; color:' + data.color + ';">' +
+                    '<span class="material-symbols-outlined">folder_open</span></div>' +
+                    '<h4>' + sub + '</h4>' +
+                    '<span class="folder-count">' + fileCount + ' file' + (fileCount > 1 ? 's' : '') + '</span>' +
+                    '</div>';
+            }
+            html += '</div>';
+            document.getElementById('resourceContent').innerHTML = html;
+        }
+
+        // ============================================
+        // VIEW: Files List (inside a subject)
+        // ============================================
+        function showFiles(semester, subject) {
+            currentSemester = semester;
+            currentSubject = subject;
+
+            document.getElementById('breadcrumb').innerHTML =
+                '<span class="material-symbols-outlined" style="font-size:18px;">home</span>' +
+                '<a onclick="showSemesters()">All Semesters</a>' +
+                '<span class="sep">›</span>' +
+                '<a onclick="showSubjects(\'' + semester + '\')">' + semester + '</a>' +
+                '<span class="sep">›</span>' +
+                '<a onclick="showFiles(\'' + semester + '\', \'' + subject + '\')"><b>' + subject + '</b></a>';
+
+            var files = resourceData[semester].subjects[subject];
+            var html = '<div class="resource-list">';
+
+            for (var i = 0; i < files.length; i++) {
+                var f = files[i];
+                var style = getFileStyle(f.type);
+                html += '<div class="res-file-card">' +
+                    '<div class="res-file-icon" style="background:' + style.bg + '; color:' + style.color + ';">' +
+                    '<span class="material-symbols-outlined">' + style.icon + '</span></div>' +
+                    '<div class="res-file-info">' +
+                    '<h4>' + f.name + '</h4>' +
+                    '<p>' + f.type + ' · ' + f.size + '</p></div>' +
+                    '<div class="res-stats">' +
+                    '<span class="res-stat"><span class="material-symbols-outlined">visibility</span> ' + f.views + '</span>' +
+                    '<span class="res-stat"><span class="material-symbols-outlined">download</span> ' + f.downloads + '</span>' +
+                    '</div>' +
+                    '<div class="res-votes">' +
+                    '<button class="vote-btn upvote" onclick="vote(this, \'up\', ' + i + ')" title="Upvote">' +
+                    '<span class="material-symbols-outlined">thumb_up</span></button>' +
+                    '<span class="vote-count" id="voteCount-' + i + '">' + f.votes + '</span>' +
+                    '<button class="vote-btn downvote" onclick="vote(this, \'down\', ' + i + ')" title="Downvote">' +
+                    '<span class="material-symbols-outlined">thumb_down</span></button>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            html += '</div>';
+            document.getElementById('resourceContent').innerHTML = html;
+        }
+
+        // ============================================
+        // VOTE: Upvote / Downvote
+        // ============================================
+        function vote(btn, direction, fileIndex) {
+            var files = resourceData[currentSemester].subjects[currentSubject];
+            var file = files[fileIndex];
+            var countEl = document.getElementById('voteCount-' + fileIndex);
+
+            // Get sibling buttons in same .res-votes container
+            var container = btn.parentElement;
+            var upBtn = container.querySelector('.upvote');
+            var downBtn = container.querySelector('.downvote');
+
+            if (direction === 'up') {
+                if (upBtn.classList.contains('active')) {
+                    // Undo upvote
+                    upBtn.classList.remove('active');
+                    file.votes--;
+                } else {
+                    // If downvote was active, remove it first
+                    if (downBtn.classList.contains('active')) {
+                        downBtn.classList.remove('active');
+                        file.votes++;
+                    }
+                    upBtn.classList.add('active');
+                    file.votes++;
+                }
+            } else {
+                if (downBtn.classList.contains('active')) {
+                    // Undo downvote
+                    downBtn.classList.remove('active');
+                    file.votes++;
+                } else {
+                    // If upvote was active, remove it first
+                    if (upBtn.classList.contains('active')) {
+                        upBtn.classList.remove('active');
+                        file.votes--;
+                    }
+                    downBtn.classList.add('active');
+                    file.votes--;
+                }
+            }
+
+            countEl.textContent = file.votes;
+        }
+
+        // Initialize: show semester folders on page load
+        showSemesters();
+    </script>
 </body>
 
 </html>

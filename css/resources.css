@@ -1,0 +1,237 @@
+/* ========================================
+   RESOURCES PAGE STYLES
+   Folder navigation, breadcrumbs, resource
+   cards with vote buttons
+   ======================================== */
+
+/* ---------- Breadcrumb ---------- */
+.res-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.res-breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.res-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.res-breadcrumb .sep {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* ---------- Folder Grid ---------- */
+.folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.folder-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+    text-align: center;
+}
+
+.folder-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+.folder-card .folder-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.folder-card .folder-icon .material-symbols-outlined {
+    font-size: 28px;
+}
+
+.folder-card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.folder-card .folder-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ---------- Resource List (File View) ---------- */
+.resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.res-file-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.25s var(--ease);
+}
+
+.res-file-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.res-file-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.res-file-icon .material-symbols-outlined {
+    font-size: 24px;
+}
+
+.res-file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.res-file-info h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.res-file-info p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ---------- Resource Stats Row ---------- */
+.res-stats {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.res-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.res-stat .material-symbols-outlined {
+    font-size: 16px;
+}
+
+/* ---------- Vote Buttons ---------- */
+.res-votes {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.vote-btn {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+}
+
+.vote-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+.vote-btn.upvote.active {
+    background: #dcfce7;
+    border-color: var(--green);
+    color: var(--green);
+}
+
+.vote-btn.downvote.active {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.vote-btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.vote-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .folder-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .res-file-card {
+        flex-wrap: wrap;
+    }
+
+    .res-stats {
+        order: 3;
+        width: 100%;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+    }
+}
+
+@media (max-width: 480px) {
+    .folder-grid {
+        grid-template-columns: 1fr;
+    }
+}
