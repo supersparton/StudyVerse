@@ -1,0 +1,119 @@
+/* ============================================================
+   STUDYVERSE — Profile Page Stylesheet (profile.css)
+   ============================================================
+   Styles for the profile settings page:
+   - Avatar selection grid
+   - Student details form
+   - Save/Reset action buttons
+   ============================================================ */
+
+
+/* ─────────────────────────────────────────────
+   PAGE HEADER (title + subtitle)
+   ───────────────────────────────────────────── */
+.profile-page-header {
+    margin-bottom: 28px;
+}
+
+.profile-page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.profile-page-header p {
+    color: var(--text-secondary);
+}
+
+
+/* ─────────────────────────────────────────────
+   PROFILE CARD (white container for sections)
+   ───────────────────────────────────────────── */
+.profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.profile-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.profile-card-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+
+/* ─────────────────────────────────────────────
+   AVATAR GRID (emoji picker)
+   ─────────────────────────────────────────────
+   Grid of emoji avatars. Click to select one.
+   ───────────────────────────────────────────── */
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    /* 8 avatars in a row */
+    gap: 12px;
+}
+
+.avatar-option {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    /* No border by default */
+    transition: all 0.2s;
+}
+
+.avatar-option:hover {
+    transform: scale(1.1);
+    /* Slightly enlarge on hover */
+}
+
+/* Selected avatar gets a primary-colored border */
+.avatar-option.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--indigo-light);
+    /* Glow effect */
+}
+
+
+/* ─────────────────────────────────────────────
+   PROFILE FORM GRID
+   ─────────────────────────────────────────────
+   Two-column grid for form fields.
+   "full-width" class makes a field span both columns.
+   ───────────────────────────────────────────── */
+.profile-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Make a field take the full width (both columns) */
+.full-width {
+    grid-column: span 2;
+}
+
+
+/* ─────────────────────────────────────────────
+   ACTION BUTTONS (Save Profile / Reset)
+   ───────────────────────────────────────────── */
+.profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    /* Push buttons to the right */
+    gap: 12px;
+    margin-top: 24px;
+}

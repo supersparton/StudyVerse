@@ -1,0 +1,214 @@
+/* ============================================================
+   STUDYVERSE — Modal Stylesheet (modals.css)
+   ============================================================
+   Styles for pop-up modals used to create notes, tasks,
+   and communities. A modal is a dialog box that appears
+   on top of the page content.
+   ============================================================ */
+
+/* ─────────────────────────────────────────────
+   MODAL OVERLAY
+   ─────────────────────────────────────────────
+   Covers the entire screen with a dark semi-
+   transparent background. Centers the modal box.
+   ───────────────────────────────────────────── */
+.modal-overlay {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stays in place when scrolling */
+    inset: 0;
+    /* Covers entire viewport */
+    background: rgba(0, 0, 0, 0.5);
+    /* Dark semi-transparent backdrop */
+    z-index: 200;
+    /* Above everything else */
+    align-items: center;
+    justify-content: center;
+}
+
+/* When modal is active, show it with flexbox centering */
+.modal-overlay.active {
+    display: flex;
+}
+
+/* ─────────────────────────────────────────────
+   MODAL BOX (the white card in the center)
+   ───────────────────────────────────────────── */
+.modal-box {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    /* For close button positioning */
+    box-shadow: var(--shadow-lg);
+    animation: modalFadeIn 0.25s ease;
+    /* Fade in animation */
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ─────────────────────────────────────────────
+   MODAL CLOSE BUTTON (X in top-right corner)
+   ───────────────────────────────────────────── */
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--text);
+}
+
+/* ─────────────────────────────────────────────
+   MODAL CONTENT (headings, fields, buttons)
+   ───────────────────────────────────────────── */
+.modal-box h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.modal-sub {
+    font-size: 0.825rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+/* Form field container inside modal */
+.modal-field {
+    margin-bottom: 18px;
+}
+
+.modal-field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.modal-field input,
+.modal-field select,
+.modal-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+}
+
+.modal-field textarea {
+    resize: vertical;
+    /* Only allow vertical resizing */
+    min-height: 80px;
+}
+
+.modal-field input:focus,
+.modal-field select:focus,
+.modal-field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--indigo-light);
+}
+
+/* Action buttons at bottom of modal */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+/* ─────────────────────────────────────────────
+   FILE UPLOAD DROP ZONE
+   ─────────────────────────────────────────────
+   Dashed-border area where users click to
+   upload a file.
+   ───────────────────────────────────────────── */
+.file-drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    color: var(--text-muted);
+}
+
+.file-drop-zone:hover {
+    border-color: var(--primary);
+}
+
+.file-drop-zone p {
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+
+.file-name {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────
+   AI CHECK PANEL (inside upload modal)
+   ─────────────────────────────────────────────
+   Shows a progress bar simulating AI review
+   of uploaded files.
+   ───────────────────────────────────────────── */
+.ai-check-panel {
+    display: none;
+    /* Hidden until upload starts */
+    text-align: center;
+}
+
+.ai-check-panel.active {
+    display: block;
+}
+
+.ai-progress-bar {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 24px 0;
+}
+
+.ai-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--purple));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    /* Smooth fill animation */
+}
+
+.ai-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}

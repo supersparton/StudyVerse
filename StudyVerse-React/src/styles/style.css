@@ -1,0 +1,1657 @@
+/* ============================================================
+   STUDYVERSE — Main Stylesheet (style.css)
+   ============================================================
+   This is the MAIN CSS file used across the entire app.
+   It defines:
+     1. CSS Variables (colors, fonts, spacing)
+     2. Reset & base styles
+     3. Layout (sidebar + main content grid)
+     4. Buttons, cards, badges
+     5. Forms (inputs, selects)
+     6. Sidebar navigation
+     7. Dashboard components (stats, tasks, communities)
+     8. Animations
+   ============================================================ */
+
+
+/* ─────────────────────────────────────────────
+   1) CSS VARIABLES (Custom Properties)
+   ─────────────────────────────────────────────
+   CSS variables let us define colors/sizes ONCE
+   and reuse them everywhere with var(--name).
+   This makes it easy to change the entire theme
+   by editing just one place.
+   ───────────────────────────────────────────── */
+:root {
+    /* Primary brand color (indigo/purple) */
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    /* Slightly darker when hovered */
+    --primary-light: #a5b4fc;
+    /* Light tint for backgrounds */
+
+    /* Background colors */
+    --bg: #f8fafc;
+    /* Main page background (light gray) */
+    --bg-card: #ffffff;
+    /* Card/panel background (white) */
+    --bg-sidebar: #ffffff;
+    /* White sidebar background */
+    --bg-sidebar-hover: #f1f5f9;
+    /* Light gray hover state */
+
+    /* Text colors */
+    --text: #1e293b;
+    /* Main text (dark) */
+    --text-secondary: #475569;
+    /* Slightly lighter text */
+    --text-muted: #94a3b8;
+    /* Very light (placeholder, captions) */
+
+    /* Border & divider colors */
+    --border: #e2e8f0;
+
+    /* Accent colors — used for tags, badges, icons */
+    --green: #10b981;
+    --green-light: #d1fae5;
+    --orange: #f59e0b;
+    --orange-light: #fef3c7;
+    --red: #ef4444;
+    --red-light: #fee2e2;
+    --pink: #ec4899;
+    --pink-light: #fce7f3;
+    --purple: #8b5cf6;
+    --purple-light: #ede9fe;
+    --cyan: #06b6d4;
+    --cyan-light: #cffafe;
+    --indigo-light: #e0e7ff;
+
+    /* Shadows — gives cards a "floating" look */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    /* Border radius — rounded corners */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 50%;
+    /* Makes a circle */
+}
+
+
+/* ─────────────────────────────────────────────
+   2) CSS RESET & BASE STYLES
+   ─────────────────────────────────────────────
+   Removes default browser spacing and sets a
+   consistent base for all elements.
+   ───────────────────────────────────────────── */
+
+/* Remove default margin/padding, use border-box sizing */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* border-box means padding is included IN the width,
+     so a 200px wide box stays 200px even with padding */
+}
+
+/* Base body styles */
+body {
+    font-family: 'Inter', sans-serif;
+    /* Modern Google Font */
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    /* Space between text lines */
+    -webkit-font-smoothing: antialiased;
+    /* Smoother text on Mac */
+}
+
+/* Remove underlines from all links by default */
+a {
+    text-decoration: none;
+    color: inherit;
+    /* Links inherit parent text color */
+}
+
+/* Make images responsive — never overflow their container */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+
+/* ─────────────────────────────────────────────
+   3) DASHBOARD LAYOUT (Sidebar + Main Content)
+   ─────────────────────────────────────────────
+   Uses CSS Grid to create a two-column layout:
+   - Left column: sidebar (fixed 260px)
+   - Right column: main content (takes remaining space)
+   
+   COLLAPSIBLE SIDEBAR:
+   - When class "sidebar-closed" is added, the grid
+     changes to 0px for the sidebar column
+   - CSS transition makes it slide smoothly
+   ───────────────────────────────────────────── */
+.layout-dashboard {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    /* 260px = sidebar width, 1fr = remaining space */
+    min-height: 100vh;
+    /* 100vh = full viewport (browser window) height */
+    transition: grid-template-columns 0.3s ease;
+    /* Smooth animation when sidebar opens/closes */
+}
+
+/* When sidebar is closed, give it 0 width */
+.layout-dashboard.sidebar-closed {
+    grid-template-columns: 0px 1fr;
+}
+
+
+/* ─────────────────────────────────────────────
+   4) SIDEBAR (White Theme + Collapsible)
+   ─────────────────────────────────────────────
+   Clean white sidebar with subtle border.
+   Can be collapsed (hidden) using a toggle button.
+   ───────────────────────────────────────────── */
+.sidebar {
+    background: var(--bg-sidebar);
+    color: var(--text);
+    /* Dark text on white bg */
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    /* Stack children vertically */
+    position: sticky;
+    /* Stays in place when scrolling */
+    top: 0;
+    height: 100vh;
+    /* Full viewport height */
+    overflow-y: auto;
+    /* Scroll if content overflows */
+    overflow-x: hidden;
+    border-right: 1px solid var(--border);
+    /* Right border separator */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    /* Smooth slide animation */
+}
+
+/* Hidden state: slide sidebar off-screen to the left */
+.sidebar.sidebar-hidden {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+    /* Can't click when hidden */
+}
+
+/* ─── Sidebar Toggle Button (hamburger menu icon) ─── */
+/* Positioned absolutely inside the .main-content area,
+   so it sits at the left edge of the top-header bar
+   without creating a separate row */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 12px;
+    /* Vertically center in header */
+    left: 16px;
+    /* Left edge of the header */
+    z-index: 10;
+    /* Sit above header content */
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.sidebar-toggle-btn:hover {
+    background: var(--bg);
+}
+
+/* When sidebar is closed, make main-content position:relative
+   so the toggle button's absolute position works correctly.
+   Also add left-padding to header so content doesn't sit
+   behind the hamburger button. */
+.sidebar-closed .main-content {
+    position: relative;
+}
+
+.sidebar-closed .top-header {
+    padding-left: 72px;
+    /* 16px left + 40px button + 16px gap */
+}
+
+/* ─── Sidebar Close Button (X inside sidebar) ─── */
+.sidebar-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: color 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-close-btn:hover {
+    color: var(--text);
+    background: var(--bg-sidebar-hover);
+}
+
+/* Sidebar header: logo + brand name + close button */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Logo left, close button right */
+    padding: 0 8px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.sidebar-header h1 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    /* Dark text on white sidebar */
+}
+
+.sidebar-header p {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Logo icon circle */
+.logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--primary);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+    /* Don't shrink when space is tight */
+}
+
+.logo-icon .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Sidebar navigation list */
+.sidebar-nav {
+    flex: 1;
+    /* Takes remaining vertical space */
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    /* Remove bullet points */
+}
+
+/* Each navigation link */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    /* Gray text on white sidebar */
+    transition: background 0.2s;
+    /* Smooth hover effect */
+    margin-bottom: 2px;
+}
+
+.nav-item:hover {
+    background: var(--bg-sidebar-hover);
+    color: var(--primary);
+    /* Purple on hover */
+}
+
+/* Active (current page) navigation item */
+.nav-item.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+/* Small badge next to nav items (e.g., "4" for tasks) */
+.nav-badge {
+    background: var(--orange);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    /* Pill shape */
+    margin-left: auto;
+    /* Push to the right */
+}
+
+/* Sidebar section title (e.g., "Favorites", "Account") */
+.sidebar-section-title {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 20px 12px 8px;
+}
+
+/* Sidebar favorite items */
+.sidebar-fav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    font-size: 0.825rem;
+    color: var(--text-secondary);
+    /* Gray on white */
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.sidebar-fav-item:hover {
+    background: var(--bg-sidebar-hover);
+    color: var(--primary);
+}
+
+/* Small colored dot for favorites */
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+/* User info at bottom of sidebar */
+.sidebar-user {
+    margin-top: auto;
+    /* Push to bottom */
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    /* Light border on white */
+}
+
+.sidebar-user a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.sidebar-user a:hover {
+    background: var(--bg-sidebar-hover);
+}
+
+.user-avatar {
+    position: relative;
+    /* For the green status dot */
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-sidebar-hover);
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Crop image to fill circle */
+}
+
+/* Green online status dot */
+.status-dot {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--green);
+    border: 2px solid var(--bg-card);
+    /* White border around dot */
+    border-radius: var(--radius-full);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info .name {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: var(--text);
+    /* Dark text on white sidebar */
+}
+
+.user-info .plan {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.brand-info {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ─────────────────────────────────────────────
+   5) MAIN CONTENT AREA
+   ─────────────────────────────────────────────
+   The scrollable area to the right of sidebar.
+   ───────────────────────────────────────────── */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Prevent horizontal overflow */
+}
+
+/* Top header bar (search + action buttons) */
+.top-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    /* Don't shrink */
+}
+
+/* Search bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-bar input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.875rem;
+    width: 100%;
+    color: var(--text);
+}
+
+.search-bar .material-symbols-outlined {
+    color: var(--text-muted);
+    font-size: 20px;
+}
+
+/* Header action buttons group */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Scrollable content area below header */
+.content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    /* Vertical scrollbar when needed */
+    padding: 32px;
+}
+
+/* Content container with max width */
+.content-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    /* Center horizontally */
+}
+
+
+/* ─────────────────────────────────────────────
+   6) BUTTONS
+   ─────────────────────────────────────────────
+   Reusable button styles with variants:
+   - btn-primary: solid indigo
+   - btn-outline: bordered, no fill
+   - btn-ghost: transparent
+   ───────────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    /* Smooth hover transition */
+    text-decoration: none;
+}
+
+/* Solid primary button */
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    /* Slight lift on hover */
+}
+
+/* Outlined button (border only, no fill) */
+.btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.btn-outline:hover {
+    background: var(--bg);
+}
+
+/* Ghost button (no border, no fill) */
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+    color: var(--primary);
+}
+
+/* Large button variant */
+.btn-lg {
+    padding: 14px 28px;
+    font-size: 1rem;
+}
+
+/* Small text variant */
+.text-sm {
+    font-size: 0.8rem;
+}
+
+/* Icon-only circular button */
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.icon-btn:hover {
+    background: var(--bg);
+}
+
+/* Red notification dot on bell icon */
+.notif-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+    border-radius: var(--radius-full);
+}
+
+
+/* ─────────────────────────────────────────────
+   7) BADGES
+   ─────────────────────────────────────────────
+   Small colored labels for priority/status:
+   "High" (red), "Med" (orange), "Low" (green), etc.
+   ───────────────────────────────────────────── */
+.badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+
+.badge-red {
+    background: var(--red-light);
+    color: var(--red);
+}
+
+.badge-orange {
+    background: var(--orange-light);
+    color: var(--orange);
+}
+
+.badge-green {
+    background: var(--green-light);
+    color: var(--green);
+}
+
+
+/* ─────────────────────────────────────────────
+   8) CARDS
+   ─────────────────────────────────────────────
+   White rounded containers used everywhere.
+   ───────────────────────────────────────────── */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+}
+
+
+/* ─────────────────────────────────────────────
+   9) FILTER BUTTONS (Tabs)
+   ─────────────────────────────────────────────
+   Row of small buttons for filtering content
+   (e.g., "All", "Recent", "Favorited")
+   ───────────────────────────────────────────── */
+.filter-btn {
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-card);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Active filter tab */
+.filter-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.task-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    /* Wrap to next line on small screens */
+    margin-bottom: 24px;
+}
+
+
+/* ─────────────────────────────────────────────
+   10) FORM INPUTS
+   ─────────────────────────────────────────────
+   Text inputs, selects, and labels used in
+   login, signup, profile, and modal forms.
+   ───────────────────────────────────────────── */
+.form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s;
+}
+
+/* Blue border when input is focused (clicked into) */
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--indigo-light);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Two inputs side by side */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Icon inside input field (e.g., eye icon for password) */
+.input-icon-wrapper {
+    position: relative;
+}
+
+.input-icon-wrapper .form-input {
+    padding-right: 40px;
+    /* Make room for the icon */
+}
+
+.input-icon-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    /* Center vertically */
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 20px;
+    pointer-events: none;
+    /* Click passes through to input */
+}
+
+
+/* ─────────────────────────────────────────────
+   11) SIGNUP / LOGIN LAYOUT
+   ─────────────────────────────────────────────
+   Split-screen layout: illustration on left,
+   form on right.
+   ───────────────────────────────────────────── */
+.signup-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 50% / 50% split */
+    min-height: 100vh;
+}
+
+/* Left panel: purple gradient with illustration */
+.signup-visual {
+    background: linear-gradient(135deg, #312e81 0%, #6366f1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    color: #fff;
+}
+
+.signup-visual-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.signup-visual h2 {
+    font-size: 1.75rem;
+    margin-bottom: 12px;
+}
+
+.signup-visual p {
+    color: #c7d2fe;
+    font-size: 0.9rem;
+}
+
+.visual-img {
+    margin-bottom: 32px;
+}
+
+.visual-img img {
+    width: 100%;
+    border-radius: var(--radius-lg);
+}
+
+/* Right panel: form area */
+.signup-form-side {
+    display: flex;
+    flex-direction: column;
+    padding: 32px 48px;
+}
+
+.signup-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 48px;
+}
+
+.signup-form-container {
+    max-width: 420px;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.signup-form-container h1 {
+    font-size: 1.75rem;
+    margin-bottom: 8px;
+}
+
+.signup-form-container .lead {
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+}
+
+.signup-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 16px 0;
+}
+
+/* Login/Signup link text */
+.login-link {
+    font-size: 0.825rem;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.login-link a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* "Sign up with Microsoft" button */
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.google-btn:hover {
+    background: var(--bg);
+}
+
+.google-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Divider line with text ("Or register with email") */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    /* Empty pseudo-element */
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+/* Terms text below form */
+.terms-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+}
+
+.terms-text a {
+    color: var(--primary);
+}
+
+/* Navbar brand (logo + name) */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-brand h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+
+/* ─────────────────────────────────────────────
+   12) WELCOME SECTION (Dashboard)
+   ───────────────────────────────────────────── */
+.welcome-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.welcome-text h1 {
+    font-size: 1.75rem;
+    margin-bottom: 4px;
+}
+
+.welcome-text p {
+    color: var(--text-secondary);
+}
+
+/* Streak card with ring */
+.streak-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 24px;
+}
+
+.streak-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.streak-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.fire-icon {
+    color: var(--orange);
+}
+
+/* Circular progress ring */
+.streak-ring {
+    width: 56px;
+    height: 56px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary);
+    /* Only top arc is colored */
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    animation: spin-slow 3s linear infinite;
+}
+
+/* Slow rotation animation for the ring */
+@keyframes spin-slow {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ─────────────────────────────────────────────
+   13) STATS GRID (Dashboard + Analytics)
+   ───────────────────────────────────────────── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 equal columns */
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--green);
+}
+
+.stat-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.stat-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+
+/* ─────────────────────────────────────────────
+   14) TASKS + COMMUNITIES GRID (Dashboard)
+   ───────────────────────────────────────────── */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+/* Task list card */
+.tasks-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.card-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.card-header a {
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Individual task row */
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+/* Circular checkbox */
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.task-checkbox.checked {
+    background: var(--green);
+    border-color: var(--green);
+}
+
+.task-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.task-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.task-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Communities column on dashboard */
+.communities-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.col-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.col-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Community mini-card */
+.community-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.community-card .cover {
+    height: 80px;
+    background-size: cover;
+    background-position: center;
+}
+
+.community-card .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin: -18px 0 0 16px;
+    /* Overlap the cover image */
+    position: relative;
+}
+
+.community-card .card-body {
+    padding: 12px 16px 16px;
+}
+
+.community-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.community-card .members {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.community-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.action-text {
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+
+/* ─────────────────────────────────────────────
+   15) AVATAR STACK (Overlapping profile images)
+   ───────────────────────────────────────────── */
+.avatar-stack {
+    display: flex;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    border: 2px solid #fff;
+    margin-left: -8px;
+    /* Overlap each avatar */
+    object-fit: cover;
+}
+
+.avatar:first-child {
+    margin-left: 0;
+}
+
+.avatar-sm {
+    width: 24px;
+    height: 24px;
+}
+
+
+/* ─────────────────────────────────────────────
+   16) NOTES PAGE (Note Cards)
+   ───────────────────────────────────────────── */
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.note-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.note-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.note-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+}
+
+.note-card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.note-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+
+/* ─────────────────────────────────────────────
+   17) TASKS PAGE (Kanban Board)
+   ───────────────────────────────────────────── */
+.task-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.task-column {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+}
+
+.task-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.task-column-header h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.task-column-header .count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* Task card inside a kanban column */
+.task-board-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+    transition: box-shadow 0.2s;
+}
+
+.task-board-card:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+.task-board-card:last-child {
+    margin-bottom: 0;
+}
+
+.task-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.task-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.task-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-due {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+
+/* ─────────────────────────────────────────────
+   18) COMMUNITIES PAGE (Explore Cards)
+   ───────────────────────────────────────────── */
+.communities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.community-explore-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.community-explore-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.card-cover {
+    height: 140px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.member-count {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.card-content {
+    padding: 16px;
+}
+
+.card-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.card-content p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+
+/* ─────────────────────────────────────────────
+   19) ANALYTICS PAGE (Charts)
+   ───────────────────────────────────────────── */
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+}
+
+.chart-placeholder {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 20px;
+}
+
+
+/* ─────────────────────────────────────────────
+   20) NOTIFICATION DROPDOWN
+   ───────────────────────────────────────────── */
+.notif-wrapper {
+    position: relative;
+}
+
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 320px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+}
+
+.notif-dropdown.show {
+    display: block;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.notif-header h4 {
+    font-size: 0.9rem;
+}
+
+.notif-header span {
+    font-size: 0.75rem;
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.notif-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notif-empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.notif-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notif-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+
+/* ─────────────────────────────────────────────
+   21) FADE-IN ANIMATION
+   ─────────────────────────────────────────────
+   Elements with these classes slide up and
+   fade in when the page loads.
+   ───────────────────────────────────────────── */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Staggered delays so elements appear one by one */
+.fade-in-up-delay-1 {
+    animation-delay: 0.1s;
+}
+
+.fade-in-up-delay-2 {
+    animation-delay: 0.2s;
+}
+
+.fade-in-up-delay-3 {
+    animation-delay: 0.3s;
+}
+
+.fade-in-up-delay-4 {
+    animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ─────────────────────────────────────────────
+   22) TOAST NOTIFICATION (pop-up message)
+   ───────────────────────────────────────────── */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    font-size: 0.85rem;
+    z-index: 1000;
+    animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+}

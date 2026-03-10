@@ -1,0 +1,220 @@
+/* ============================================================
+   STUDYVERSE — Pomodoro Timer Stylesheet (pomodoro.css)
+   ============================================================
+   Styles for the Pomodoro study timer page:
+   - Mode tabs (Focus / Short Break / Long Break)
+   - Timer ring (circular display)
+   - Control buttons (play, reset, skip)
+   - Session stats cards
+   - Currently working on section
+   ============================================================ */
+
+
+/* ─────────────────────────────────────────────
+   MODE TABS (Focus / Short Break / Long Break)
+   ─────────────────────────────────────────────
+   Row of buttons at top to switch between modes.
+   ───────────────────────────────────────────── */
+.pomodoro-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.pomo-tab {
+    padding: 8px 24px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    /* Pill shape */
+    background: var(--bg-card);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pomo-tab:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Active tab gets solid primary background */
+.pomo-tab.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+
+/* ─────────────────────────────────────────────
+   TIMER CONTAINER (centered on page)
+   ───────────────────────────────────────────── */
+.pomodoro-timer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+
+/* ─────────────────────────────────────────────
+   TIMER RING (the big circular display)
+   ─────────────────────────────────────────────
+   A circle made with border-radius: 50%.
+   The colored top border creates the arc effect.
+   ───────────────────────────────────────────── */
+.timer-ring {
+    width: 240px;
+    height: 240px;
+    border: 6px solid var(--border);
+    /* Gray ring */
+    border-top-color: var(--primary);
+    /* Colored arc at top */
+    border-radius: 50%;
+    /* Makes it circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    animation: spin-slow 8s linear infinite;
+    /* Slowly rotates */
+}
+
+/* Inner content (digits + label) — counter-rotate so text stays upright */
+.timer-display {
+    text-align: center;
+    animation: counter-spin 8s linear infinite;
+}
+
+@keyframes counter-spin {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+/* Large timer digits (e.g., "25:00") */
+.timer-digits {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 2px;
+}
+
+/* Label below digits (e.g., "Focus Session") */
+.timer-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+
+/* ─────────────────────────────────────────────
+   TIMER CONTROL BUTTONS
+   ─────────────────────────────────────────────
+   Play/Pause (large primary), Reset & Skip (smaller).
+   ───────────────────────────────────────────── */
+.timer-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.timer-btn {
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+/* Large primary button (Play/Pause) */
+.timer-btn.primary {
+    width: 64px;
+    height: 64px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 28px;
+}
+
+.timer-btn.primary:hover {
+    background: var(--primary-hover);
+    transform: scale(1.05);
+    /* Slightly enlarge on hover */
+}
+
+/* Smaller secondary buttons (Reset, Skip) */
+.timer-btn.secondary {
+    width: 44px;
+    height: 44px;
+    background: var(--bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.timer-btn.secondary:hover {
+    background: var(--border);
+}
+
+
+/* ─────────────────────────────────────────────
+   SESSION STATS (below timer)
+   ─────────────────────────────────────────────
+   Three stat cards: Sessions Today, Total Focus, Streak
+   ───────────────────────────────────────────── */
+.pomodoro-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 600px;
+    margin: 0 auto 32px;
+}
+
+.pomo-stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+}
+
+.pomo-stat-card h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.pomo-stat-card p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+
+/* ─────────────────────────────────────────────
+   CURRENTLY WORKING ON (task card at bottom)
+   ───────────────────────────────────────────── */
+.pomodoro-current-task {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.current-task-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.current-task-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
