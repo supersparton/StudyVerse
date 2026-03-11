@@ -24,6 +24,7 @@ import App from './App';
 
 // Import the main stylesheet (applies to ALL pages)
 import './styles/style.css';
+import './styles/community-discord.css';
 
 // ─────────────────────────────────────────────
 // RENDER THE APP
