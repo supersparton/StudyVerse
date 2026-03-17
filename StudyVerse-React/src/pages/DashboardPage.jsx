@@ -13,15 +13,25 @@
    - Link (navigate to other pages)
    ============================================================ */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 
 function DashboardPage() {
     // ─── STATE: Track which tasks are checked ───
-    // We store an array of booleans: [false, false, false, false]
-    // false = unchecked, true = checked
     const [checkedTasks, setCheckedTasks] = useState([false, false, false, false]);
+
+    // ─── STATE: Logged-in user's name ───
+    const [userName, setUserName] = useState('Student');
+
+    // ─── Read the logged-in user's name from localStorage ───
+    useEffect(function () {
+        const saved = localStorage.getItem('studyverse-user');
+        if (saved) {
+            const user = JSON.parse(saved);
+            setUserName(user.full_name);
+        }
+    }, []);
 
     // Toggle a specific task's checked state
     function toggleTask(index) {
@@ -68,7 +78,7 @@ function DashboardPage() {
                     {/* ─── Welcome Section ─── */}
                     <section className="welcome-section fade-in-up">
                         <div className="welcome-text">
-                            <h1>Good evening, Alex! 👋</h1>
+                            <h1>Good evening, {userName}! 👋</h1>
                             <p>You've completed 80% of your weekly goals. Keep up the momentum!</p>
                         </div>
                         <div className="streak-card">

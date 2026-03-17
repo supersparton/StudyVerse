@@ -27,35 +27,39 @@ function LoginPage() {
     // useNavigate gives us a function to change the current page/URL
     const navigate = useNavigate();
 
-    // The required email domain for validation
-    const domain = 'adaniuni.ac.in';
 
     // ─── FORM VALIDATION & SUBMIT ───
     // This function runs when the user clicks "Login"
-    function handleLogin() {
-        // Regex pattern: needs uppercase, lowercase, number, special char, min 8 chars
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/;
-
+    async function handleLogin() {
         // Check if fields are empty
         if (email === '' || password === '') {
             alert('Email and Password is required');
-            return; // Stop here, don't continue
-        }
-
-        // Check if email has correct domain
-        if (!email.endsWith(domain)) {
-            alert('Email must be @adaniuni.ac.in');
             return;
         }
 
-        // Check if password meets requirements
-        if (!passwordRegex.test(password)) {
-            alert('Password must be at least 8 characters with uppercase, lowercase, number, and special character');
-            return;
-        }
+        try {
+            // Send login request to our backend API
+            const response = await fetch(import.meta.env.VITE_API_URL + '/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            });
 
-        // All checks passed! Navigate to dashboard
-        navigate('/dashboard');
+            // Parse the JSON response from server
+            const data = await response.json();
+
+            if (data.success) {
+                // Save user info in browser so Dashboard can use it
+                localStorage.setItem('studyverse-user', JSON.stringify(data.user));
+                navigate('/dashboard');
+            } else {
+                // Show the error message from backend
+                alert(data.message);
+            }
+        } catch (err) {
+            alert('Cannot connect to server. Make sure backend is running!');
+            console.error(err);
+        }
     }
 
     // ─── TOGGLE PASSWORD VISIBILITY ───
@@ -118,7 +122,7 @@ function LoginPage() {
                                 className="form-input"
                                 id="email"
                                 type="email"
-                                placeholder="jane@adaniuni.ac.in"
+                                placeholder="jane@example.com"
                                 value={email}
                                 onChange={function (e) { setEmail(e.target.value); }}
                             />

@@ -19,27 +19,43 @@ function SignupPage() {
     const [showPassword, setShowPassword] = useState(false);
 
     const navigate = useNavigate();
-    const domain = 'adaniuni.ac.in';
 
-    // Handle form submission
-    function handleSignup() {
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/;
-
+    // Handle form submission — sends data to our Express backend
+    async function handleSignup() {
+        // Basic validation
         if (!name || !email || !password) {
             alert('All fields are required');
             return;
         }
-        if (!email.endsWith(domain)) {
-            alert('Email must be @adaniuni.ac.in');
-            return;
-        }
-        if (!passwordRegex.test(password)) {
-            alert('Password must be at least 8 characters with uppercase, lowercase, number, and special character');
-            return;
-        }
 
-        // Success — go to dashboard
-        navigate('/dashboard');
+        try {
+            // Send signup request to our backend API
+            const response = await fetch(import.meta.env.VITE_API_URL + '/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    full_name: name,
+                    email: email,
+                    password: password
+                })
+            });
+
+            // Parse the JSON response from server
+            const data = await response.json();
+
+            if (data.success) {
+                // Save user info in browser so Dashboard can use it
+                localStorage.setItem('studyverse-user', JSON.stringify(data.user));
+                alert('Account created successfully! 🎉');
+                navigate('/dashboard');
+            } else {
+                // Show the error message from backend
+                alert(data.message);
+            }
+        } catch (err) {
+            alert('Cannot connect to server. Make sure backend is running!');
+            console.error(err);
+        }
     }
 
     return (
@@ -105,7 +121,7 @@ function SignupPage() {
                         <div className="form-group">
                             <label htmlFor="email">Email Address</label>
                             <input
-                                className="form-input" id="email" type="email" placeholder="jane@adaniuni.ac.in"
+                                className="form-input" id="email" type="email" placeholder="jane@example.com"
                                 value={email} onChange={function (e) { setEmail(e.target.value); }}
                             />
                         </div>
