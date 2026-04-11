@@ -1,25 +1,25 @@
 /* ============================================================
    STUDYVERSE — Profile Page (ProfilePage.jsx)
    ============================================================
-   Users can:
-   - Select an emoji avatar
-   - Fill in their academic details
-   - Save profile to localStorage (persists across reloads)
-   
+   Connected to backend API for profile CRUD.
+
+   CRUD OPERATIONS:
+   - READ   → GET /api/profile         (Fetch user profile from DB)
+   - UPDATE → PUT /api/profile         (Save profile changes to DB)
+
+   The profile data is now stored in the Supabase database,
+   not just localStorage. This means it persists across devices!
+
    REACT CONCEPTS:
-   - useState for all form fields
-   - useEffect to LOAD saved data when component first mounts
-   - localStorage — browser's built-in key-value storage
-   
-   WHY localStorage?
-   - It saves data even after the browser is closed
-   - Perfect for saving user preferences without a backend
-   - Data is stored as strings, so we use JSON.stringify/parse
+   - useEffect to load profile from database on mount
+   - fetch() with PUT method to send updated data
    ============================================================ */
 
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import '../styles/profile.css';
+
+const API = import.meta.env.VITE_API_URL;
 
 function ProfilePage() {
     // ─── AVATAR OPTIONS ───
@@ -35,46 +35,124 @@ function ProfilePage() {
     const [branch, setBranch] = useState('');
     const [semester, setSemester] = useState('');
     const [bio, setBio] = useState('');
+    const [loading, setLoading] = useState(true);
 
-    // ─── LOAD SAVED PROFILE ON MOUNT ───
-    // useEffect with [] runs ONCE when the component first appears
+    // ─── Get JWT token ───
+    function getToken() {
+        var user = localStorage.getItem('studyverse-user');
+        if (user) return JSON.parse(user).token;
+        return null;
+    }
+
+    // ─── READ: Fetch profile from database on page load ───
     useEffect(function () {
-        // Try to get saved profile from localStorage
-        var saved = localStorage.getItem('studyverse-profile');
-        if (saved) {
-            // Parse the JSON string back into an object
-            var data = JSON.parse(saved);
-            setSelectedAvatar(data.avatar || '👨‍🎓');
-            setFullName(data.fullName || '');
-            setEmail(data.email || '');
-            setEnrollmentNo(data.enrollmentNo || '');
-            setCollege(data.college || '');
-            setBranch(data.branch || '');
-            setSemester(data.semester || '');
-            setBio(data.bio || '');
-        }
-    }, []); // Empty array = run only once on mount
+        fetchProfile();
+    }, []);
 
-    // ─── SAVE PROFILE ───
-    function saveProfile() {
-        var profileData = {
-            avatar: selectedAvatar,
-            fullName: fullName,
-            email: email,
-            enrollmentNo: enrollmentNo,
-            college: college,
-            branch: branch,
-            semester: semester,
-            bio: bio,
-        };
-        // Convert object to JSON string and save
-        localStorage.setItem('studyverse-profile', JSON.stringify(profileData));
-        alert('Profile saved successfully! ✅');
+    /**
+     * fetchProfile — GET /api/profile
+     * Reads the logged-in user's profile from the database.
+     */
+    async function fetchProfile() {
+        try {
+            var response = await fetch(API + '/api/profile', {
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            var data = await response.json();
+
+            if (data.success && data.user) {
+                // Populate form fields with data from database
+                setFullName(data.user.full_name || '');
+                setEmail(data.user.email || '');
+                setBio(data.user.bio || '');
+
+                // Also load from localStorage for fields not in DB
+                var saved = localStorage.getItem('studyverse-profile');
+                if (saved) {
+                    var local = JSON.parse(saved);
+                    setSelectedAvatar(local.avatar || '👨‍🎓');
+                    setEnrollmentNo(local.enrollmentNo || '');
+                    setCollege(local.college || '');
+                    setBranch(local.branch || '');
+                    setSemester(local.semester || '');
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch profile:', err);
+            // Fallback to localStorage
+            var saved = localStorage.getItem('studyverse-profile');
+            if (saved) {
+                var local = JSON.parse(saved);
+                setSelectedAvatar(local.avatar || '👨‍🎓');
+                setFullName(local.fullName || '');
+                setEmail(local.email || '');
+                setEnrollmentNo(local.enrollmentNo || '');
+                setCollege(local.college || '');
+                setBranch(local.branch || '');
+                setSemester(local.semester || '');
+                setBio(local.bio || '');
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    /**
+     * saveProfile — UPDATE: PUT /api/profile
+     * Sends updated profile data to the database.
+     * Also saves to localStorage for extra fields.
+     */
+    async function saveProfile() {
+        try {
+            // UPDATE in database — send name and bio to backend
+            var response = await fetch(API + '/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken()
+                },
+                body: JSON.stringify({
+                    full_name: fullName,
+                    bio: bio,
+                    avatar_url: selectedAvatar   // Store emoji as avatar
+                })
+            });
+
+            var data = await response.json();
+
+            // Also save extra fields to localStorage (not in DB schema)
+            var profileData = {
+                avatar: selectedAvatar,
+                fullName: fullName,
+                email: email,
+                enrollmentNo: enrollmentNo,
+                college: college,
+                branch: branch,
+                semester: semester,
+                bio: bio,
+            };
+            localStorage.setItem('studyverse-profile', JSON.stringify(profileData));
+
+            if (data.success) {
+                alert('Profile saved to database! ✅');
+            } else {
+                alert('Saved locally. Backend: ' + data.message);
+            }
+        } catch (err) {
+            console.error('Failed to save profile:', err);
+            // Still save locally as fallback
+            var profileData = {
+                avatar: selectedAvatar, fullName: fullName, email: email,
+                enrollmentNo: enrollmentNo, college: college, branch: branch,
+                semester: semester, bio: bio,
+            };
+            localStorage.setItem('studyverse-profile', JSON.stringify(profileData));
+            alert('Saved locally (backend offline)');
+        }
     }
 
     // ─── RESET PROFILE ───
     function resetProfile() {
-        // Clear all fields
         setSelectedAvatar('👨‍🎓');
         setFullName('');
         setEmail('');
@@ -83,7 +161,6 @@ function ProfilePage() {
         setBranch('');
         setSemester('');
         setBio('');
-        // Remove from localStorage
         localStorage.removeItem('studyverse-profile');
         alert('Profile reset!');
     }
@@ -108,8 +185,14 @@ function ProfilePage() {
                     {/* Page Header */}
                     <div className="profile-page-header">
                         <h1>My Profile</h1>
-                        <p>Customize your profile with your details.</p>
+                        <p>Your profile is synced with the database.</p>
                     </div>
+
+                    {loading && (
+                        <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+                            Loading profile from database...
+                        </p>
+                    )}
 
                     {/* Avatar Selection */}
                     <div className="profile-card">
@@ -118,11 +201,9 @@ function ProfilePage() {
                         <div className="avatar-grid">
                             {avatars.map(function (emoji) {
                                 return (
-                                    <div
-                                        key={emoji}
+                                    <div key={emoji}
                                         className={'avatar-option' + (selectedAvatar === emoji ? ' selected' : '')}
-                                        onClick={function () { setSelectedAvatar(emoji); }}
-                                    >
+                                        onClick={function () { setSelectedAvatar(emoji); }}>
                                         {emoji}
                                     </div>
                                 );

@@ -49,8 +49,12 @@ function LoginPage() {
             const data = await response.json();
 
             if (data.success) {
-                // Save user info in browser so Dashboard can use it
-                localStorage.setItem('studyverse-user', JSON.stringify(data.user));
+                // Save user info + JWT token in browser
+                // The token is needed for all protected API calls (notes, tasks, etc.)
+                localStorage.setItem('studyverse-user', JSON.stringify({
+                    ...data.user,
+                    token: data.token   // Save the JWT token!
+                }));
                 navigate('/dashboard');
             } else {
                 // Show the error message from backend
