@@ -32,6 +32,7 @@ import NotesPage from './pages/NotesPage';
 import TasksPage from './pages/TasksPage';
 import PomodoroPage from './pages/PomodoroPage';
 import CommunitiesPage from './pages/CommunitiesPage';
+import CommunityInnerPage from './pages/CommunityInnerPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ResourcesPage from './pages/ResourcesPage';
 import ProfilePage from './pages/ProfilePage';
@@ -59,6 +60,7 @@ function App() {
       <Route path="/tasks" element={<TasksPage />} />
       <Route path="/pomodoro" element={<PomodoroPage />} />
       <Route path="/communities" element={<CommunitiesPage />} />
+      <Route path="/communities/:id" element={<CommunityInnerPage />} />
       <Route path="/analytics" element={<AnalyticsPage />} />
       <Route path="/resources" element={<ResourcesPage />} />
       <Route path="/profile" element={<ProfilePage />} />

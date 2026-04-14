@@ -19,6 +19,8 @@ require('dotenv').config();
 // ─── Import required packages ───
 const express = require('express');  // Web framework for Node.js
 const cors = require('cors');        // Allows React frontend to talk to this server
+const http = require('http');        // required for socket.io
+const { Server } = require('socket.io');
 
 // ─── Import our middleware ───
 const requestLogger = require('./middleware/logger');         // Logs every request
@@ -37,6 +39,32 @@ const analyticsRoutes = require('./routes/analytics');       // /api/analytics/*
 // ─── Create the Express app ───
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ─── Create HTTP Server & Socket.IO ───
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST']
+    }
+});
+
+io.on('connection', (socket) => {
+    // When a frontend user clicks a channel, they "join" a socket room specific to that channel
+    socket.on('join_channel', (channelId) => {
+        // Leave previous rooms if any
+        Array.from(socket.rooms).forEach(room => {
+            if(room !== socket.id) socket.leave(room);
+        });
+        socket.join('channel_' + channelId);
+    });
+});
+
+// Middleware to make socket.io accessible inside our routes
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 
 
 /* ─────────────────────────────────────────────
@@ -141,7 +169,7 @@ app.use(errorHandler);
 /* ─────────────────────────────────────────────
    START THE SERVER
    ───────────────────────────────────────────── */
-app.listen(PORT, async function () {
+server.listen(PORT, async function () {
     console.log('');
     console.log('  ✅ StudyVerse Backend is running!');
     console.log('  📡 Server:       http://localhost:' + PORT);

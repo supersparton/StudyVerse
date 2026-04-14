@@ -1,137 +1,111 @@
-/* ============================================================
-   STUDYVERSE — Communities Routes (routes/communities.js)
-   ============================================================
-   This file handles operations for the Communities feature:
-   1. GET    /              → List all communities
-   2. POST   /              → Create a new community
-   3. POST   /:id/join      → Join a community
-   4. POST   /:id/leave     → Leave a community
-
-   CONCEPTS USED:
-   - Express Router         (groups routes under /api/communities)
-   - Auth Middleware         (protects create/join/leave routes)
-   - Supabase client         (reads/writes "communities" & "community_members" tables)
-
-   DATABASE TABLES EXPECTED:
-   - communities        → id, name, description, created_by, created_at
-   - community_members  → id, community_id, user_id, joined_at
-   ============================================================ */
-
 const express = require('express');
 const supabase = require('../supabaseClient');
 const authMiddleware = require('../middleware/authMiddleware');
+const multer = require('multer');
 
+// Configure multer for saving files in memory buffer
+const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
-
 /* ─────────────────────────────────────────────
-   GET /api/communities
-   ─────────────────────────────────────────────
-   Lists ALL communities (public — no auth needed).
-   Anyone can browse communities without logging in.
+   COMMUNITIES CORE ROUTES
    ───────────────────────────────────────────── */
+
+// List ALL communities
 router.get('/', async function (req, res, next) {
     try {
         const { data, error } = await supabase
             .from('communities')
-            .select('*')
-            .order('created_at', { ascending: false }); // Newest communities first
+            .select('*, community_members(user_id)')
+            .order('created_at', { ascending: false });
 
-        if (error) {
-            const err = new Error(error.message);
-            err.statusCode = 500;
-            return next(err);
-        }
-
-        res.json({
-            success: true,
-            count: data.length,
-            communities: data
-        });
-
+        if (error) throw new Error(error.message);
+        res.json({ success: true, count: data.length, communities: data });
     } catch (err) {
         next(err);
     }
 });
 
-
-/* ─────────────────────────────────────────────
-   POST /api/communities
-   ─────────────────────────────────────────────
-   Creates a NEW community (requires login).
-   
-   EXPECTED REQUEST BODY:
-   {
-     "name": "JavaScript Study Group",
-     "description": "Learn JS together"    (optional)
-   }
-   ───────────────────────────────────────────── */
-router.post('/', authMiddleware, async function (req, res, next) {
+// Get ONE community
+router.get('/:id', authMiddleware, async function (req, res, next) {
     try {
-        const { name, description } = req.body;
-
-        // Validate — community name is required
-        if (!name) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide a name for the community'
-            });
-        }
-
-        // Insert the community — set created_by to the logged-in user
         const { data, error } = await supabase
             .from('communities')
-            .insert([
-                {
-                    name: name,
-                    description: description || '',
-                    created_by: req.user.id     // Track who created it
-                }
-            ])
-            .select();
+            .select('*')
+            .eq('id', req.params.id)
+            .single();
 
-        if (error) {
-            const err = new Error(error.message);
-            err.statusCode = 500;
-            return next(err);
+        if (error || !data) return res.status(404).json({ success: false, message: 'Community not found' });
+        res.json({ success: true, community: data });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Create NEW community (with Image)
+router.post('/', authMiddleware, upload.single('image'), async function (req, res, next) {
+    try {
+        const { name, description } = req.body;
+        if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
+
+        let imageUrl = null;
+
+        // Image Upload Logic
+        if (req.file) {
+            if (req.file.size > 5 * 1024 * 1024) {
+                return res.status(400).json({ success: false, message: 'Image size exceeds 5MB limit' });
+            }
+
+            const fileExt = req.file.originalname.split('.').pop();
+            const fileName = `community_${req.user.id}_${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('community_images')
+                .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true });
+
+            if (uploadError) throw new Error("Image Upload Error: " + uploadError.message);
+
+            const { data: publicURLData } = supabase.storage.from('community_images').getPublicUrl(fileName);
+            imageUrl = publicURLData.publicUrl;
         }
 
-        // Automatically add the creator as a member of the community
-        // This way, the person who creates a community is already "in" it
-        await supabase
+        // 1. Insert Community
+        const { data: commData, error: commError } = await supabase
+            .from('communities')
+            .insert([{ name, description: description || '', created_by: req.user.id, image_url: imageUrl }])
+            .select();
+
+        if (commError) throw new Error(commError.message);
+        const communityId = commData[0].id;
+
+        // 2. Add creator as 'admin' in members table
+        const { error: memberError } = await supabase
             .from('community_members')
+            .insert([{ community_id: communityId, user_id: req.user.id, role: 'admin' }]);
+        
+        if (memberError) throw new Error(memberError.message);
+
+        // 3. Auto-generate default channels
+        const { error: channelError } = await supabase
+            .from('community_channels')
             .insert([
-                {
-                    community_id: data[0].id,
-                    user_id: req.user.id
-                }
+                { community_id: communityId, name: 'general-chat', type: 'text' },
+                { community_id: communityId, name: 'Study Room 1', type: 'voice' }
             ]);
 
-        res.status(201).json({
-            success: true,
-            message: 'Community created successfully!',
-            community: data[0]
-        });
+        if (channelError) throw new Error(channelError.message);
 
+        res.status(201).json({ success: true, message: 'Community forged!', community: commData[0] });
     } catch (err) {
         next(err);
     }
 });
 
 
-/* ─────────────────────────────────────────────
-   POST /api/communities/:id/join
-   ─────────────────────────────────────────────
-   Joins a community (requires login).
-   
-   :id is the community's ID from the URL.
-   Example: POST /api/communities/5/join
-   ───────────────────────────────────────────── */
+// Join a community
 router.post('/:id/join', authMiddleware, async function (req, res, next) {
     try {
         const communityId = req.params.id;
-
-        // Check if the user is already a member
         const { data: existing } = await supabase
             .from('community_members')
             .select('id')
@@ -139,81 +113,177 @@ router.post('/:id/join', authMiddleware, async function (req, res, next) {
             .eq('user_id', req.user.id)
             .single();
 
-        // If they're already a member, don't add them again
-        if (existing) {
-            return res.status(400).json({
-                success: false,
-                message: 'You are already a member of this community'
-            });
-        }
+        if (existing) return res.status(400).json({ success: false, message: 'Already a member' });
 
-        // Add the user as a member
         const { error } = await supabase
             .from('community_members')
-            .insert([
-                {
-                    community_id: communityId,
-                    user_id: req.user.id
-                }
-            ]);
+            .insert([{ community_id: communityId, user_id: req.user.id, role: 'member' }]);
 
-        if (error) {
-            const err = new Error(error.message);
-            err.statusCode = 500;
-            return next(err);
-        }
-
-        res.json({
-            success: true,
-            message: 'Successfully joined the community!'
-        });
-
+        if (error) throw new Error(error.message);
+        res.json({ success: true, message: 'Joined successfully!' });
     } catch (err) {
         next(err);
     }
 });
 
-
-/* ─────────────────────────────────────────────
-   POST /api/communities/:id/leave
-   ─────────────────────────────────────────────
-   Leaves a community (requires login).
-   
-   Removes the logged-in user from the
-   community_members table for this community.
-   ───────────────────────────────────────────── */
+// Leave a community
 router.post('/:id/leave', authMiddleware, async function (req, res, next) {
     try {
-        const communityId = req.params.id;
-
-        // Remove the user from the community_members table
         const { data, error } = await supabase
             .from('community_members')
             .delete()
-            .eq('community_id', communityId)
+            .eq('community_id', req.params.id)
             .eq('user_id', req.user.id)
             .select();
 
-        if (error) {
-            const err = new Error(error.message);
-            err.statusCode = 500;
-            return next(err);
-        }
-
-        // If nothing was deleted, the user wasn't a member
-        if (!data || data.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'You are not a member of this community'
-            });
-        }
-
-        res.json({
-            success: true,
-            message: 'Successfully left the community'
-        });
-
+        if (error) throw new Error(error.message);
+        if (!data || data.length === 0) return res.status(400).json({ success: false, message: 'Not a member' });
+        
+        res.json({ success: true, message: 'Left community' });
     } catch (err) {
+        next(err);
+    }
+});
+
+// Get Members directory (Mapped with users)
+router.get('/:id/members', authMiddleware, async function (req, res, next) {
+    try {
+        const { data, error } = await supabase
+            .from('community_members')
+            .select('*, users(full_name, avatar_url)')
+            .eq('community_id', req.params.id);
+
+        if (error) throw new Error(error.message);
+        res.json({ success: true, members: data });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/* ─────────────────────────────────────────────
+   CHANNELS ROUTES (REST)
+   ───────────────────────────────────────────── */
+
+// Get all channels for a specific community
+router.get('/:id/channels', authMiddleware, async function (req, res, next) {
+    try {
+        const { data, error } = await supabase
+            .from('community_channels')
+            .select('*')
+            .eq('community_id', req.params.id)
+            .order('created_at', { ascending: true });
+
+        if (error) throw new Error(error.message);
+        res.json({ success: true, channels: data });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Create a new channel (Admins only)
+router.post('/:id/channels', authMiddleware, async function (req, res, next) {
+    try {
+        const { name, type } = req.body;
+        const communityId = req.params.id;
+
+        // Verify Admin Status
+        const { data: memberData, error: memErr } = await supabase
+            .from('community_members')
+            .select('role')
+            .eq('community_id', communityId)
+            .eq('user_id', req.user.id)
+            .single();
+
+        if (memErr || !memberData || memberData.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Only Admins can create channels!' });
+        }
+
+        const { data, error } = await supabase
+            .from('community_channels')
+            .insert([{ community_id: communityId, name, type: type || 'text' }])
+            .select();
+
+        if (error) throw new Error(error.message);
+        res.status(201).json({ success: true, channel: data[0] });
+    } catch(err) {
+        next(err);
+    }
+});
+
+// Delete a channel (Admins only)
+router.delete('/:id/channels/:channelId', authMiddleware, async function (req, res, next) {
+    try {
+        const communityId = req.params.id;
+        const channelId = req.params.channelId;
+
+        // Verify Admin Status
+        const { data: memberData } = await supabase
+            .from('community_members')
+            .select('role')
+            .eq('community_id', communityId)
+            .eq('user_id', req.user.id)
+            .single();
+
+        if (!memberData || memberData.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Only Admins can delete channels!' });
+        }
+
+        const { error } = await supabase.from('community_channels').delete().eq('id', channelId);
+        if (error) throw new Error(error.message);
+
+        res.json({ success: true, message: 'Channel deleted' });
+    } catch(err) {
+        next(err);
+    }
+});
+
+/* ─────────────────────────────────────────────
+   MESSAGING ROUTES (REST)
+   ───────────────────────────────────────────── */
+
+// Get all messages inside a channel
+router.get('/channels/:channelId/messages', authMiddleware, async function (req, res, next) {
+    try {
+        const channelId = req.params.channelId;
+        const { data, error } = await supabase
+            .from('channel_messages')
+            // Embed the author's avatar & full_name instantly!
+            .select('*, users(full_name, avatar_url)')
+            .eq('channel_id', channelId)
+            .order('created_at', { ascending: true }); // Historical (oldest first) so new messages appear at the bottom
+
+        if (error) throw new Error(error.message);
+        res.json({ success: true, messages: data });
+    } catch(err) {
+        next(err);
+    }
+});
+
+// Post a chat message
+router.post('/channels/:channelId/messages', authMiddleware, async function (req, res, next) {
+    try {
+        const channelId = req.params.channelId;
+        const { content } = req.body;
+
+        if (!content) return res.status(400).json({ success: false, message: 'No content provided' });
+
+        const { data, error } = await supabase
+            .from('channel_messages')
+            .insert([{ channel_id: channelId, user_id: req.user.id, content }])
+            .select('*, users(full_name, avatar_url)');
+
+        if (error) throw new Error(error.message);
+        
+        const newMessage = data[0];
+
+        // 🟢 REAL-TIME WEBSOCKET PUSH! 🟢
+        // Broadcast the message instantly to any users actively looking at this specific channel!
+        if (req.io) {
+            req.io.to('channel_' + channelId).emit('new_message', newMessage);
+        }
+
+        res.status(201).json({ success: true, message: newMessage });
+    } catch(err) {
         next(err);
     }
 });

@@ -15,6 +15,7 @@
    ============================================================ */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 
 const API = import.meta.env.VITE_API_URL;
@@ -28,6 +29,9 @@ function CommunitiesPage() {
     const [showForm, setShowForm] = useState(false);
     const [formName, setFormName] = useState('');
     const [formDesc, setFormDesc] = useState('');
+    const [formImage, setFormImage] = useState(null);
+
+    const navigate = useNavigate();
 
     // ─── Get JWT token ───
     function getToken() {
@@ -62,14 +66,22 @@ function CommunitiesPage() {
             return;
         }
 
+        if (formImage && formImage.size > 5 * 1024 * 1024) {
+            return alert('Image is too large! Max 5MB.');
+        }
+
         try {
+            let formData = new FormData();
+            formData.append('name', formName);
+            formData.append('description', formDesc);
+            if (formImage) formData.append('image', formImage);
+
             var response = await fetch(API + '/api/communities', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + getToken()
                 },
-                body: JSON.stringify({ name: formName, description: formDesc })
+                body: formData
             });
 
             var data = await response.json();
@@ -78,6 +90,7 @@ function CommunitiesPage() {
                 setShowForm(false);
                 setFormName('');
                 setFormDesc('');
+                setFormImage(null);
                 alert('Community created! ✅');
             } else {
                 alert(data.message);
@@ -187,6 +200,8 @@ function CommunitiesPage() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <input className="form-input" type="text" placeholder="Community name..."
                                     value={formName} onChange={function (e) { setFormName(e.target.value); }} />
+                                <input className="form-input" type="file" accept="image/*"
+                                    onChange={function (e) { setFormImage(e.target.files[0]); }} />
                                 <textarea className="form-input" placeholder="Description..." rows="2"
                                     value={formDesc} onChange={function (e) { setFormDesc(e.target.value); }}></textarea>
                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -207,31 +222,46 @@ function CommunitiesPage() {
                     {/* ─── READ: Communities Grid from database ─── */}
                     <div className="communities-grid fade-in-up fade-in-up-delay-2">
                         {communities.map(function (c, index) {
+                            
+                            // Determine if current user is a member
+                            const currentUserStr = localStorage.getItem('studyverse-user');
+                            const myId = currentUserStr ? JSON.parse(currentUserStr).id : null;
+                            const isMember = c.community_members?.some(m => m.user_id === myId) || c.created_by === myId;
+
                             return (
-                                <div className="community-explore-card" key={c.id}>
-                                    <div className="card-cover" style={{ background: colors[index % colors.length] }}>
-                                        <span className="material-symbols-outlined"
-                                            style={{
-                                                position: 'absolute', top: '50%', left: '50%',
-                                                transform: 'translate(-50%, -50%)',
-                                                fontSize: '48px', color: 'rgba(255,255,255,0.3)'
-                                            }}>
-                                            {icons[index % icons.length]}
-                                        </span>
+                                <div className="community-explore-card" key={c.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/communities/' + c.id)}>
+                                    <div className="card-cover" style={{ 
+                                            background: colors[index % colors.length],
+                                            backgroundImage: c.image_url ? `url(${c.image_url})` : 'none',
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center'
+                                        }}>
+                                        {!c.image_url && (
+                                            <span className="material-symbols-outlined"
+                                                style={{
+                                                    position: 'absolute', top: '50%', left: '50%',
+                                                    transform: 'translate(-50%, -50%)',
+                                                    fontSize: '48px', color: 'rgba(255,255,255,0.3)'
+                                                }}>
+                                                {icons[index % icons.length]}
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="card-content">
                                         <h4>{c.name}</h4>
                                         <p>{c.description || 'No description'}</p>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            {/* JOIN / LEAVE buttons */}
-                                            <button className="btn btn-primary" style={{ flex: 1 }}
-                                                onClick={function () { handleJoin(c.id); }}>
-                                                Join
-                                            </button>
-                                            <button className="btn btn-outline" style={{ flex: 1 }}
-                                                onClick={function () { handleLeave(c.id); }}>
-                                                Leave
-                                            </button>
+                                        <div style={{ display: 'flex', gap: '8px' }} onClick={e => e.stopPropagation()}>
+                                            {isMember ? (
+                                                <button className="btn btn-outline" style={{ flex: 1, borderColor: '#EF4444', color: '#EF4444' }}
+                                                    onClick={function (e) { e.stopPropagation(); handleLeave(c.id); }}>
+                                                    Leave
+                                                </button>
+                                            ) : (
+                                                <button className="btn btn-primary" style={{ flex: 1 }}
+                                                    onClick={function (e) { e.stopPropagation(); handleJoin(c.id); }}>
+                                                    Join
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
