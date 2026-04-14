@@ -161,6 +161,32 @@ function NotesPage() {
     }
 
     /**
+     * toggleFavorite — PUT /api/notes/:id
+     * Toggles the is_favorite boolean on a note
+     */
+    async function toggleFavorite(note) {
+        try {
+            var response = await fetch(API + '/api/notes/' + note.id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken()
+                },
+                body: JSON.stringify({
+                    is_favorite: !note.is_favorite
+                })
+            });
+
+            var data = await response.json();
+            if (data.success) {
+                fetchNotes(); // Reload notes to show updated star immediately
+            }
+        } catch (err) {
+            console.error('Failed to toggle favorite status:', err);
+        }
+    }
+
+    /**
      * startEditing — Fills the form with existing note data for editing
      */
     function startEditing(note) {
@@ -322,6 +348,15 @@ function NotesPage() {
                                     <div className="note-footer">
                                         <span>{formatDate(note.created_at)}</span>
                                         <div style={{ display: 'flex', gap: '8px' }}>
+                                            {/* FAVORITE: Toggle button */}
+                                            <span
+                                                className="material-symbols-outlined"
+                                                style={{ fontSize: '18px', cursor: 'pointer', color: note.is_favorite ? '#fbbf24' : 'var(--text-secondary)' }}
+                                                title={note.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                                                onClick={function () { toggleFavorite(note); }}
+                                            >
+                                                {note.is_favorite ? 'star' : 'star_border'}
+                                            </span>
                                             {/* UPDATE: Edit button */}
                                             <span
                                                 className="material-symbols-outlined"

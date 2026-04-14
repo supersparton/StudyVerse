@@ -31,6 +31,8 @@ const tasksRoutes = require('./routes/tasks');               // /api/tasks/*
 const communitiesRoutes = require('./routes/communities');   // /api/communities/*
 const resourcesRoutes = require('./routes/resources');       // /api/resources/*
 const profileRoutes = require('./routes/profile');           // /api/profile/*
+const pomodoroRoutes = require('./routes/pomodoro');         // /api/pomodoro/*
+const analyticsRoutes = require('./routes/analytics');       // /api/analytics/*
 
 // ─── Create the Express app ───
 const app = express();
@@ -94,6 +96,8 @@ app.use('/api/tasks', tasksRoutes);
 app.use('/api/communities', communitiesRoutes);
 app.use('/api/resources', resourcesRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/pomodoro', pomodoroRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Simple test route — visit http://localhost:5000/ in browser to check if server works
 app.get('/', function (req, res) {
@@ -137,10 +141,37 @@ app.use(errorHandler);
 /* ─────────────────────────────────────────────
    START THE SERVER
    ───────────────────────────────────────────── */
-app.listen(PORT, function () {
+app.listen(PORT, async function () {
     console.log('');
     console.log('  ✅ StudyVerse Backend is running!');
     console.log('  📡 Server:       http://localhost:' + PORT);
+    console.log('');
+
+    // ─── DATABASE CONNECTION CHECK ───
+    // Test Supabase connectivity right at startup so we know immediately
+    // if the database is reachable or not.
+    console.log('  🔄 Checking Supabase connection...');
+    try {
+        const supabase = require('./supabaseClient');
+        const { data, error } = await supabase.from('users').select('id').limit(1);
+
+        if (error) {
+            console.log('  ❌ Supabase ERROR: ' + error.message);
+            console.log('  ⚠️  The server will run, but database calls will fail!');
+            console.log('  💡 Check your SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+            console.log('  💡 Make sure your Supabase project is not paused');
+        } else {
+            console.log('  ✅ Supabase connected successfully!');
+        }
+    } catch (err) {
+        console.log('  ❌ Cannot reach Supabase: ' + err.message);
+        console.log('  ⚠️  Possible causes:');
+        console.log('     1. No internet connection');
+        console.log('     2. SUPABASE_URL in .env is incorrect');
+        console.log('     3. Supabase project is paused (check dashboard)');
+        console.log('     4. Firewall/proxy blocking the connection');
+    }
+
     console.log('');
     console.log('  🔐 Auth Routes:');
     console.log('     POST /api/auth/signup');

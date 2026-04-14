@@ -14,7 +14,7 @@
    - useLocation: highlights the current active page
    ============================================================ */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 // Props explained:
@@ -22,6 +22,61 @@ import { Link, useLocation } from 'react-router-dom';
 // - onToggle: function → called when user clicks close/open button
 function Sidebar({ isOpen, onToggle }) {
     const location = useLocation();
+
+    // ─── STATE: Profile Data & Favorite Notes ───
+    const [userProfile, setUserProfile] = useState({
+        fullName: 'Student',
+        avatar: '👨‍🎓'
+    });
+    const [favoriteNotes, setFavoriteNotes] = useState([]);
+
+    // ─── Fetch profile and notes data ───
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                let userStr = localStorage.getItem('studyverse-user');
+                if (!userStr) return;
+                let token = JSON.parse(userStr).token;
+                
+                // Fetch Profile
+                fetch(import.meta.env.VITE_API_URL + '/api/profile', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                }).then(res => res.json()).then(data => {
+                    if (data.success && data.user) {
+                        setUserProfile({
+                            fullName: data.user.full_name || 'Student',
+                            avatar: data.user.avatar_url || '👨‍🎓'
+                        });
+                    } else {
+                        let local = localStorage.getItem('studyverse-profile');
+                        if (local) {
+                            let parsed = JSON.parse(local);
+                            setUserProfile(prev => ({...prev, fullName: parsed.fullName || prev.fullName, avatar: parsed.avatar || prev.avatar}));
+                        }
+                    }
+                }).catch(err => {
+                    let local = localStorage.getItem('studyverse-profile');
+                    if (local) {
+                        let parsed = JSON.parse(local);
+                        setUserProfile(prev => ({...prev, fullName: parsed.fullName || prev.fullName, avatar: parsed.avatar || prev.avatar}));
+                    }
+                });
+
+                // Fetch Favorite Notes
+                fetch(import.meta.env.VITE_API_URL + '/api/notes', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                }).then(res => res.json()).then(data => {
+                    if (data.success && data.notes) {
+                        setFavoriteNotes(data.notes.filter(n => n.is_favorite));
+                    }
+                }).catch(err => console.error("Failed to fetch favorite notes"));
+
+            } catch (err) {
+                console.error("Error fetching sidebar data", err);
+            }
+        }
+        fetchData();
+    }, [location.pathname]); // Refetch on route changes if profile updated
 
     // Navigation items — stored as array for easy .map() rendering
     const navItems = [
@@ -78,39 +133,55 @@ function Sidebar({ isOpen, onToggle }) {
                 {/* ─── Favorites Section ─── */}
                 <div className="sidebar-section-title">Favorites</div>
                 <ul>
-                    <li>
-                        <a href="#" className="sidebar-fav-item">
-                            <span className="dot" style={{ background: '#ec4899' }}></span>
-                            Calculus 101
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" className="sidebar-fav-item">
-                            <span className="dot" style={{ background: '#06b6d4' }}></span>
-                            Art History
-                        </a>
-                    </li>
+                    {favoriteNotes.length > 0 ? (
+                        favoriteNotes.map((note, idx) => (
+                            <li key={note.id}>
+                                <Link to="/notes" className="sidebar-fav-item">
+                                    <span className="dot" style={{ background: ['#ec4899', '#06b6d4', '#f59e0b', '#10b981'][idx % 4] }}></span>
+                                    {note.title.length > 20 ? note.title.substring(0, 17) + '...' : note.title}
+                                </Link>
+                            </li>
+                        ))
+                    ) : (
+                        <li>
+                            <Link to="/notes" className="sidebar-fav-item" style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>star</span>
+                                No favorite notes
+                            </Link>
+                        </li>
+                    )}
                 </ul>
             </nav>
 
             {/* ─── User Info (Bottom of Sidebar) ─── */}
-            <div className="sidebar-user">
-                <Link to="/profile">
-                    <div className="user-avatar">
-                        <img
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB64GHbvy-PzYwINkrXjcZMERp_jy83KwV5j6NTQJkoP7oqCMgprEMUJrrWC7xmsZURFi0A2P9JG1Y8Z_QqwfIcd12HZo9IXLjP3nRUVk89Dj1NaXOxR_g7jYuyOqcwzXBbCHnTW2WKaQW3bA2rTbut0ZjGe7TGyW1y79-ErKFSejyqpwIa41mif4cXA45DEBZEMjGnlLwMHXVBttS1RUUxGn9exdAa7Kw1l9kqE4S4R3pWOMfWJy1vOJl89lS-h3G1VE6L5qX7H4fW"
-                            alt="Alex Student"
-                        />
+            <div className="sidebar-user" style={{ display: 'flex', alignItems: 'center' }}>
+                <Link to="/profile" style={{ display: 'flex', alignItems: 'center', flex: 1, gap: '12px', textDecoration: 'none' }}>
+                    <div className="user-avatar" style={{ fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%' }}>
+                        {userProfile.avatar.startsWith('http') ? (
+                            <img src={userProfile.avatar} alt={userProfile.fullName} />
+                        ) : (
+                            userProfile.avatar
+                        )}
                         <span className="status-dot"></span>
                     </div>
                     <div className="user-info">
-                        <span className="name">Alex Student</span>
+                        <span className="name">{userProfile.fullName}</span>
                         <span className="plan">Pro Plan</span>
                     </div>
-                    <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)' }}>
-                        expand_more
-                    </span>
                 </Link>
+                <button 
+                    onClick={function() {
+                        if(window.confirm('Are you sure you want to log out?')) {
+                            localStorage.removeItem('studyverse-user');
+                            localStorage.removeItem('studyverse-profile');
+                            window.location.href = '/login';
+                        }
+                    }}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '8px', display: 'flex' }}
+                    title="Log out"
+                >
+                    <span className="material-symbols-outlined">logout</span>
+                </button>
             </div>
         </aside>
     );

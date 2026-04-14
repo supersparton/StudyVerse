@@ -69,13 +69,13 @@ function generateToken(user) {
 router.post('/signup', async function (req, res, next) {
     try {
         // Step 1: Get the data from the request body
-        const { full_name, email, password } = req.body;
+        const { full_name, email, password, enrollment_no, college, branch, semester, bio } = req.body;
 
-        // Step 2: Validate — make sure nothing is empty
-        if (!full_name || !email || !password) {
+        // Step 2: Validate — make sure required fields are filled
+        if (!full_name || !email || !password || !enrollment_no || !college || !branch || !semester) {
             return res.status(400).json({
                 success: false,
-                message: 'Please fill in all fields'
+                message: 'Please fill in all fields (including enrollment, college, branch, semester)'
             });
         }
 
@@ -105,7 +105,12 @@ router.post('/signup', async function (req, res, next) {
                 {
                     full_name: full_name,
                     email: email,
-                    password: hashedPassword   // Store the HASH, never the real password!
+                    password: hashedPassword,   // Store the HASH, never the real password!
+                    enrollment_no: enrollment_no,
+                    college: college,
+                    branch: branch,
+                    semester: semester,
+                    bio: bio || ''
                 }
             ])
             .select();  // Return the inserted row

@@ -22,12 +22,9 @@ import '../styles/profile.css';
 const API = import.meta.env.VITE_API_URL;
 
 function ProfilePage() {
-    // ─── AVATAR OPTIONS ───
-    const avatars = ['👨‍🎓', '👩‍🎓', '🧑‍💻', '👨‍🔬', '👩‍🔬', '🧑‍🎨', '👨‍🏫', '👩‍🏫',
-        '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '🦊', '🐱', '🐸', '🦉'];
-
     // ─── FORM STATE ───
     const [selectedAvatar, setSelectedAvatar] = useState('👨‍🎓');
+    const [avatarFile, setAvatarFile] = useState(null);
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [enrollmentNo, setEnrollmentNo] = useState('');
@@ -61,37 +58,18 @@ function ProfilePage() {
             var data = await response.json();
 
             if (data.success && data.user) {
-                // Populate form fields with data from database
+                // Populate form fields with data entirely from the database
                 setFullName(data.user.full_name || '');
                 setEmail(data.user.email || '');
                 setBio(data.user.bio || '');
-
-                // Also load from localStorage for fields not in DB
-                var saved = localStorage.getItem('studyverse-profile');
-                if (saved) {
-                    var local = JSON.parse(saved);
-                    setSelectedAvatar(local.avatar || '👨‍🎓');
-                    setEnrollmentNo(local.enrollmentNo || '');
-                    setCollege(local.college || '');
-                    setBranch(local.branch || '');
-                    setSemester(local.semester || '');
-                }
+                setEnrollmentNo(data.user.enrollment_no || '');
+                setCollege(data.user.college || '');
+                setBranch(data.user.branch || '');
+                setSemester(data.user.semester || '');
+                if (data.user.avatar_url) setSelectedAvatar(data.user.avatar_url);
             }
         } catch (err) {
             console.error('Failed to fetch profile:', err);
-            // Fallback to localStorage
-            var saved = localStorage.getItem('studyverse-profile');
-            if (saved) {
-                var local = JSON.parse(saved);
-                setSelectedAvatar(local.avatar || '👨‍🎓');
-                setFullName(local.fullName || '');
-                setEmail(local.email || '');
-                setEnrollmentNo(local.enrollmentNo || '');
-                setCollege(local.college || '');
-                setBranch(local.branch || '');
-                setSemester(local.semester || '');
-                setBio(local.bio || '');
-            }
         } finally {
             setLoading(false);
         }
@@ -100,69 +78,48 @@ function ProfilePage() {
     /**
      * saveProfile — UPDATE: PUT /api/profile
      * Sends updated profile data to the database.
-     * Also saves to localStorage for extra fields.
      */
     async function saveProfile() {
         try {
-            // UPDATE in database — send name and bio to backend
+            // --- Limit image size to 5MB client-side ---
+            if (avatarFile && avatarFile.size > 5 * 1024 * 1024) {
+                return alert('Profile picture is too large! Please select an image smaller than 5MB.');
+            }
+
+            // Build form data to support file uploads
+            let formData = new FormData();
+            formData.append('full_name', fullName);
+            formData.append('bio', bio);
+            formData.append('enrollment_no', enrollmentNo);
+            formData.append('college', college);
+            formData.append('branch', branch);
+            formData.append('semester', semester);
+            
+            if (avatarFile) {
+                formData.append('avatar', avatarFile);
+            }
+
+            // UPDATE in database
             var response = await fetch(API + '/api/profile', {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
+                    // Do NOT set Content-Type here; let the browser set it automatically for FormData
                     'Authorization': 'Bearer ' + getToken()
                 },
-                body: JSON.stringify({
-                    full_name: fullName,
-                    bio: bio,
-                    avatar_url: selectedAvatar   // Store emoji as avatar
-                })
+                body: formData
             });
 
             var data = await response.json();
 
-            // Also save extra fields to localStorage (not in DB schema)
-            var profileData = {
-                avatar: selectedAvatar,
-                fullName: fullName,
-                email: email,
-                enrollmentNo: enrollmentNo,
-                college: college,
-                branch: branch,
-                semester: semester,
-                bio: bio,
-            };
-            localStorage.setItem('studyverse-profile', JSON.stringify(profileData));
-
             if (data.success) {
                 alert('Profile saved to database! ✅');
             } else {
-                alert('Saved locally. Backend: ' + data.message);
+                alert('Error editing profile: ' + data.message);
             }
         } catch (err) {
             console.error('Failed to save profile:', err);
-            // Still save locally as fallback
-            var profileData = {
-                avatar: selectedAvatar, fullName: fullName, email: email,
-                enrollmentNo: enrollmentNo, college: college, branch: branch,
-                semester: semester, bio: bio,
-            };
-            localStorage.setItem('studyverse-profile', JSON.stringify(profileData));
-            alert('Saved locally (backend offline)');
+            alert('Cannot connect to server');
         }
-    }
-
-    // ─── RESET PROFILE ───
-    function resetProfile() {
-        setSelectedAvatar('👨‍🎓');
-        setFullName('');
-        setEmail('');
-        setEnrollmentNo('');
-        setCollege('');
-        setBranch('');
-        setSemester('');
-        setBio('');
-        localStorage.removeItem('studyverse-profile');
-        alert('Profile reset!');
     }
 
     return (
@@ -194,20 +151,31 @@ function ProfilePage() {
                         </p>
                     )}
 
-                    {/* Avatar Selection */}
+                    {/* Profile Picture Upload */}
                     <div className="profile-card">
-                        <h3 className="profile-card-title">Choose Your Avatar</h3>
-                        <p className="profile-card-subtitle">Click to select an avatar.</p>
-                        <div className="avatar-grid">
-                            {avatars.map(function (emoji) {
-                                return (
-                                    <div key={emoji}
-                                        className={'avatar-option' + (selectedAvatar === emoji ? ' selected' : '')}
-                                        onClick={function () { setSelectedAvatar(emoji); }}>
-                                        {emoji}
-                                    </div>
-                                );
-                            })}
+                        <h3 className="profile-card-title">Profile Picture</h3>
+                        <p className="profile-card-subtitle">Upload a photo to personalize your profile.</p>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '16px' }}>
+                            <div className="user-avatar" style={{ fontSize: '40px', width: '80px', height: '80px', borderRadius: '50%', background: 'var(--indigo-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {avatarFile ? (
+                                    <img src={URL.createObjectURL(avatarFile)} alt="Preview" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                ) : (selectedAvatar && selectedAvatar.startsWith('http') ? (
+                                    <img src={selectedAvatar} alt="Current" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                ) : (
+                                    selectedAvatar
+                                ))}
+                            </div>
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={(e) => {
+                                    if(e.target.files && e.target.files[0]) {
+                                        setAvatarFile(e.target.files[0]);
+                                    }
+                                }} 
+                                style={{ fontSize: '14px' }}
+                            />
                         </div>
                     </div>
 
@@ -264,10 +232,7 @@ function ProfilePage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="profile-actions">
-                        <button className="btn btn-outline" onClick={resetProfile}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>restart_alt</span> Reset
-                        </button>
+                    <div className="profile-actions" style={{ justifyContent: 'flex-end' }}>
                         <button className="btn btn-primary" onClick={saveProfile}>
                             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>save</span> Save Profile
                         </button>

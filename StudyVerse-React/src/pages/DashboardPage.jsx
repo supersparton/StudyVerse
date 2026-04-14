@@ -18,36 +18,92 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 
 function DashboardPage() {
-    // ─── STATE: Track which tasks are checked ───
-    const [checkedTasks, setCheckedTasks] = useState([false, false, false, false]);
-
-    // ─── STATE: Logged-in user's name ───
+    // ─── STATE variables ───
     const [userName, setUserName] = useState('Student');
+    const [tasks, setTasks] = useState([]);
+    const [communities, setCommunities] = useState([]);
+    const [analytics, setAnalytics] = useState({
+        totalStudyHours: '0h 0m',
+        tasksPending: 0,
+        productivityScore: 0,
+        resourcesShared: 0,
+        streakDays: 1
+    });
 
-    // ─── Read the logged-in user's name from localStorage ───
-    useEffect(function () {
-        const saved = localStorage.getItem('studyverse-user');
-        if (saved) {
-            const user = JSON.parse(saved);
-            setUserName(user.full_name);
-        }
-    }, []);
+    const API = import.meta.env.VITE_API_URL;
 
-    // Toggle a specific task's checked state
-    function toggleTask(index) {
-        // Create a copy of the array (never modify state directly!)
-        const updated = [...checkedTasks];
-        updated[index] = !updated[index]; // Flip true↔false
-        setCheckedTasks(updated);
+    function getToken() {
+        var user = localStorage.getItem('studyverse-user');
+        if (user) return JSON.parse(user).token;
+        return null;
     }
 
-    // ─── Task data (hardcoded for now) ───
-    const tasks = [
-        { name: 'Review Calculus Chapter 4', meta: 'Math 201 • Today', priority: 'High', badgeClass: 'badge-red' },
-        { name: 'Submit History Essay Draft', meta: 'History 101 • Tomorrow', priority: 'Med', badgeClass: 'badge-orange' },
-        { name: 'Group Project Meeting', meta: 'Design 300 • Wed, 2:00 PM', priority: 'Low', badgeClass: 'badge-green' },
-        { name: 'Read Chapter 5: Organic Chemistry', meta: 'Chemistry 101 • Wed', priority: 'Low', badgeClass: 'badge-green' },
-    ];
+    useEffect(function () {
+        const saved = localStorage.getItem('studyverse-user');
+        let parsedUser;
+        if (saved) {
+            parsedUser = JSON.parse(saved);
+            setUserName(parsedUser.full_name);
+        }
+
+        async function fetchData() {
+            try {
+                let token = getToken();
+                if (!token) return;
+
+                // Fetch Tasks
+                let taskRes = await fetch(API + '/api/tasks', { headers: { 'Authorization': 'Bearer ' + token } });
+                let taskData = await taskRes.json();
+                if (taskData.success) {
+                    setTasks(taskData.tasks.filter(t => t.status !== 'completed').slice(0, 4));
+                }
+
+                // Fetch Communities
+                let commRes = await fetch(API + '/api/communities');
+                let commData = await commRes.json();
+                if (commData.success) {
+                    setCommunities(commData.communities.slice(0, 2));
+                }
+
+                // Fetch Analytics
+                let analyticsRes = await fetch(API + '/api/analytics', { headers: { 'Authorization': 'Bearer ' + token } });
+                let analyticsData = await analyticsRes.json();
+                
+                // Fetch Resources using general resources route
+                let resRes = await fetch(API + '/api/resources');
+                let resData = await resRes.json();
+
+                if (analyticsData.success) {
+                    setAnalytics({
+                        totalStudyHours: analyticsData.stats.totalStudyHours,
+                        tasksPending: analyticsData.stats.tasksPending,
+                        productivityScore: analyticsData.stats.productivityScore,
+                        streakDays: analyticsData.stats.streakDays,
+                        // Calculate how many resources were uploaded by THIS user
+                        resourcesShared: resData.success && parsedUser ? resData.resources.filter(r => r.user_id === parsedUser.id).length : 0 
+                    });
+                }
+
+            } catch (err) {
+                console.error("Dashboard fetch error:", err);
+            }
+        }
+        fetchData();
+    }, []);
+
+    async function toggleTaskStatus(task) {
+        try {
+            await fetch(API + '/api/tasks/' + task.id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+                body: JSON.stringify({ status: 'completed' })
+            });
+            // Remove from UI immediately
+            setTasks(prev => prev.filter(t => t.id !== task.id));
+        } catch (e) {
+            console.error('Failed to toggle task:', e);
+        }
+    }
 
     return (
         <DashboardLayout>
@@ -79,17 +135,17 @@ function DashboardPage() {
                     <section className="welcome-section fade-in-up">
                         <div className="welcome-text">
                             <h1>Good evening, {userName}! 👋</h1>
-                            <p>You've completed 80% of your weekly goals. Keep up the momentum!</p>
+                            <p>You've achieved {analytics.productivityScore}% productivity. Keep up the momentum!</p>
                         </div>
                         <div className="streak-card">
                             <div className="streak-info">
                                 <span className="streak-label">Current Streak</span>
                                 <div className="streak-value">
-                                    5 Days
+                                    {analytics.streakDays} Days
                                     <span className="material-symbols-outlined fire-icon">local_fire_department</span>
                                 </div>
                             </div>
-                            <div className="streak-ring">80%</div>
+                            <div className="streak-ring">{analytics.productivityScore}%</div>
                         </div>
                     </section>
 
@@ -100,22 +156,17 @@ function DashboardPage() {
                                 <div className="stat-icon" style={{ background: 'var(--indigo-light)', color: 'var(--primary)' }}>
                                     <span className="material-symbols-outlined">schedule</span>
                                 </div>
-                                <span className="stat-trend">
-                                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>trending_up</span>
-                                    +10%
-                                </span>
                             </div>
-                            <h3>12h 30m</h3>
-                            <p>Focus Time this week</p>
+                            <h3>{analytics.totalStudyHours}</h3>
+                            <p>Focus Time</p>
                         </div>
                         <div className="stat-card">
                             <div className="stat-header">
                                 <div className="stat-icon" style={{ background: 'var(--orange-light)', color: 'var(--orange)' }}>
                                     <span className="material-symbols-outlined">check_box</span>
                                 </div>
-                                <span className="badge badge-orange">1 Urgent</span>
                             </div>
-                            <h3>4</h3>
+                            <h3>{analytics.tasksPending}</h3>
                             <p>Tasks Pending</p>
                         </div>
                         <div className="stat-card">
@@ -124,7 +175,7 @@ function DashboardPage() {
                                     <span className="material-symbols-outlined">share</span>
                                 </div>
                             </div>
-                            <h3>12</h3>
+                            <h3>{analytics.resourcesShared}</h3>
                             <p>Resources Shared</p>
                         </div>
                     </section>
@@ -138,21 +189,25 @@ function DashboardPage() {
                                 <Link to="/tasks">View All</Link>
                             </div>
                             <div className="task-list">
-                                {tasks.map(function (task, index) {
+                                {tasks.length > 0 ? tasks.map(function (task) {
                                     return (
-                                        <div className="task-item" key={index}>
+                                        <div className="task-item" key={task.id}>
                                             <div
-                                                className={'task-checkbox' + (checkedTasks[index] ? ' checked' : '')}
-                                                onClick={function () { toggleTask(index); }}
+                                                className="task-checkbox"
+                                                onClick={function () { toggleTaskStatus(task); }}
                                             ></div>
                                             <div className="task-info">
-                                                <span className="task-name">{task.name}</span>
-                                                <span className="task-meta">{task.meta}</span>
+                                                <span className="task-name">{task.title}</span>
+                                                <span className="task-meta">{task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No date'}</span>
                                             </div>
-                                            <span className={'badge ' + task.badgeClass}>{task.priority}</span>
+                                            <span className={'badge ' + (task.priority === 'high' ? 'badge-red' : task.priority === 'low' ? 'badge-green' : 'badge-orange')}>
+                                                {task.priority || 'med'}
+                                            </span>
                                         </div>
                                     );
-                                })}
+                                }) : (
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', marginTop: '20px' }}>No upcoming tasks. Enjoy your day!</p>
+                                )}
                             </div>
                         </div>
 
@@ -160,44 +215,25 @@ function DashboardPage() {
                         <div className="communities-col">
                             <div className="col-header">
                                 <h3>Your Communities</h3>
-                                <button className="icon-btn">
+                                <Link to="/communities" className="icon-btn">
                                     <span className="material-symbols-outlined">add_circle</span>
-                                </button>
+                                </Link>
                             </div>
-                            {/* Community Card 1 */}
-                            <div className="community-card">
-                                <div className="cover" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQ3_SNJi9MVBcw1dUDt8UpLhYc1P9OnCpT1oyrIdGJ1jmD8lign-5v1UvIpTRygbLoiOpvsxJiUTkWHj91Q0bztMmo84mlRWYp2SHfFBIuIDh3REEf-T59c7ncUoYTRLPII_hy0MFjW-2IiFUkNOKv_893gOeSJv7l-meEnvBR-e_NP7Rx6HkXCCkQTSMHyK6QT-fVfUnqlEtbzyczR91e_YR_PCWMZfsFGtVsIQDTctN1ToVeGIqvGk3_wkE4omfGKJOVbxNQZhAr')" }}></div>
-                                <div className="card-icon" style={{ background: 'var(--primary)' }}>
-                                    <span className="material-symbols-outlined">science</span>
-                                </div>
-                                <div className="card-body">
-                                    <h4>Physics 101</h4>
-                                    <p className="members">128 Members • 5 Online</p>
-                                    <div className="card-footer">
-                                        <div className="avatar-stack">
-                                            <img className="avatar avatar-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFgIDVq7-Cp7xewVFhDKb8rp7dNL39seoy2wtua9zI8zHGYonjhtSdgLHJ8oXWrUKoe_ZeBTYSZeFkzJukI7A9uvFk-lh4tscjDvTEpIAC39_uftElnvD37jAx_O-dfticIsyu8PQ9p2N6YiRJtm2gKsuYV1we28_30g5ThtfSlz3DqBjKisyBmfvLBgGLMqpsAi8z_MKCjIcKYjTCS5Mdu3qxzvWPguCb962aXnFi3sTA_eNLdUAZ_36tj2WzA8UO4KVnf0JwXaDH" alt="Member" />
-                                        </div>
-                                        <span className="action-text">Join Call</span>
+                            
+                            {communities.length > 0 ? communities.map((c, i) => (
+                                <div className="community-card" key={c.id}>
+                                    <div className="cover" style={{ backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899'][i % 4]}}></div>
+                                    <div className="card-icon" style={{ background: 'var(--primary)' }}>
+                                        <span className="material-symbols-outlined">groups</span>
+                                    </div>
+                                    <div className="card-body">
+                                        <h4>{c.name}</h4>
+                                        <p className="members">{c.description ? c.description.substring(0, 30) + '...' : 'Members Online'}</p>
                                     </div>
                                 </div>
-                            </div>
-                            {/* Community Card 2 */}
-                            <div className="community-card">
-                                <div className="cover" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4qny9mgkNlfbxHyNGYnT3elppFd5-kLzLlhWTmpUDNJ3I_5Yib6i1juazQUqGi25052ChwWd8DrwXmexkntL2mdgTugmFUqNwzEy-itWzlHsnKAh85bOYXt1iN7BnbkSYBsj7a-GaWf40WQ4IGA6VFTIlsvwzcSOatYaVJWtbD03dJjgnp6P8kR2BbwBfsokMVdNZ5A_xZSRg6SQo8R08agheOk9WrWVyQ0gE_IJpfLpHdc136w_4RGLiykYslkbBqCm3pqah6OVT')" }}></div>
-                                <div className="card-icon" style={{ background: 'var(--green)' }}>
-                                    <span className="material-symbols-outlined">terminal</span>
-                                </div>
-                                <div className="card-body">
-                                    <h4>Late Night Coders</h4>
-                                    <p className="members">204 Members • 42 Online</p>
-                                    <div className="card-footer">
-                                        <div className="avatar-stack">
-                                            <img className="avatar avatar-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwXDG_Sg5M9ku6EZXkI87YVP2V_aVAaW85dd2ZHqQeGPVtYRtIW5J2O4VaCKQPtnwmBwSwLLAkpOHIv7LBdl3RWhmJbLJJAcxzGo7fcnc4_bvvWAQwdXVvUdhHmBROcgq3bc9-WU0Okj6Fc0ms354Y5DbYb0ipC_2BumHscTMOU4-JaJyKt2MH3JtvMvH0ewLiQwgef8b1t3hhk4DF167wYGZlI8Gd7VyRArbGX2fugQVEX-rY6s_Cr9rNhTRiZQ63isJnc3txds1H" alt="Member" />
-                                        </div>
-                                        <span className="action-text">Active</span>
-                                    </div>
-                                </div>
-                            </div>
+                            )) : (
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', marginTop: '20px' }}>No communities yet.</p>
+                            )}
                         </div>
                     </section>
 

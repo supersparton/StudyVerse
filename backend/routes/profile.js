@@ -19,6 +19,10 @@
 const express = require('express');
 const supabase = require('../supabaseClient');
 const authMiddleware = require('../middleware/authMiddleware');
+const multer = require('multer');
+
+// Configure multer to store files in memory (so we can pass buffers directly to Supabase)
+const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
@@ -41,7 +45,7 @@ router.get('/', async function (req, res, next) {
         // We select specific columns to EXCLUDE the password
         const { data: user, error } = await supabase
             .from('users')
-            .select('id, full_name, email, bio, avatar_url, created_at')
+            .select('id, full_name, email, bio, avatar_url, favorites, enrollment_no, college, branch, semester, created_at')
             .eq('id', req.user.id)     // WHERE id = logged-in user's ID
             .single();                  // Get one result (not an array)
 
@@ -79,22 +83,55 @@ router.get('/', async function (req, res, next) {
    Those should have separate, more secure flows
    (like email verification or password reset).
    ───────────────────────────────────────────── */
-router.put('/', async function (req, res, next) {
+router.put('/', upload.single('avatar'), async function (req, res, next) {
     try {
-        const { full_name, bio, avatar_url } = req.body;
+        const { full_name, bio, avatar_url, favorites, enrollment_no, college, branch, semester } = req.body;
 
         // Build an object with only the fields that were provided
-        // This prevents accidentally overwriting fields with "undefined"
         const updates = {};
         if (full_name !== undefined) updates.full_name = full_name;
         if (bio !== undefined) updates.bio = bio;
-        if (avatar_url !== undefined) updates.avatar_url = avatar_url;
+        if (avatar_url !== undefined) updates.avatar_url = avatar_url; // fallback if they somehow send string
+        if (favorites !== undefined) updates.favorites = favorites;
+        if (enrollment_no !== undefined) updates.enrollment_no = enrollment_no;
+        if (college !== undefined) updates.college = college;
+        if (branch !== undefined) updates.branch = branch;
+        if (semester !== undefined) updates.semester = semester;
+
+        // --- NEW: Handle file upload if present ---
+        if (req.file) {
+            const fileExt = req.file.originalname.split('.').pop();
+            const fileName = `avatar_${req.user.id}_${Date.now()}.${fileExt}`;
+            
+            // Upload to Supabase Storage 'avatars' bucket
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(fileName, req.file.buffer, {
+                    contentType: req.file.mimetype,
+                    upsert: true
+                });
+
+            if (uploadError) {
+                console.error("Avatar Upload Error:", uploadError.message);
+                if (uploadError.message.toLowerCase().includes('size')) {
+                    return res.status(400).json({ success: false, message: 'Image is too large. Please upload an image smaller than 5MB.' });
+                }
+                return res.status(500).json({ success: false, message: 'Failed to upload image' });
+            }
+
+            // Get the public URL of the uploaded image
+            const { data: publicURLData } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(fileName);
+                
+            updates.avatar_url = publicURLData.publicUrl;
+        }
 
         // Check if any fields were actually provided
         if (Object.keys(updates).length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide at least one field to update (full_name, bio, or avatar_url)'
+                message: 'Please provide at least one field to update'
             });
         }
 
@@ -103,7 +140,7 @@ router.put('/', async function (req, res, next) {
             .from('users')
             .update(updates)
             .eq('id', req.user.id)     // Only update the logged-in user's row
-            .select('id, full_name, email, bio, avatar_url, created_at');  // Return updated data (no password!)
+            .select('id, full_name, email, bio, avatar_url, favorites, enrollment_no, college, branch, semester, created_at');  // Return updated data (no password!)
 
         if (error) {
             const err = new Error(error.message);

@@ -22,6 +22,10 @@
 const express = require('express');
 const supabase = require('../supabaseClient');
 const authMiddleware = require('../middleware/authMiddleware');
+const multer = require('multer');
+
+// Configure multer to store files in memory
+const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
@@ -42,7 +46,8 @@ router.get('/', async function (req, res, next) {
         // Start building the Supabase query
         let query = supabase
             .from('resources')
-            .select('*')
+            // Fetch the resource details PLUS the full_name and avatar of who uploaded it!
+            .select('*, users(full_name, avatar_url)')
             .order('created_at', { ascending: false });
 
         // If a category filter was provided in the URL, add it to the query
@@ -86,9 +91,10 @@ router.get('/', async function (req, res, next) {
      "category": "articles"                  (optional)
    }
    ───────────────────────────────────────────── */
-router.post('/', authMiddleware, async function (req, res, next) {
+router.post('/', authMiddleware, upload.single('file'), async function (req, res, next) {
     try {
-        const { title, description, url, category } = req.body;
+        const { title, description, category, semester } = req.body;
+        let url = req.body.url || null;
 
         // Validate — title is required
         if (!title) {
@@ -98,6 +104,35 @@ router.post('/', authMiddleware, async function (req, res, next) {
             });
         }
 
+        // --- NEW: Handle file upload if present ---
+        if (req.file) {
+            const fileExt = req.file.originalname.split('.').pop();
+            const fileName = `resource_${req.user.id}_${Date.now()}.${fileExt}`;
+            
+            // Upload to Supabase Storage 'resources' bucket
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('resources')
+                .upload(fileName, req.file.buffer, {
+                    contentType: req.file.mimetype,
+                    upsert: true
+                });
+
+            if (uploadError) {
+                console.error("Resource Upload Error:", uploadError.message);
+                if (uploadError.message.toLowerCase().includes('size')) {
+                    return res.status(400).json({ success: false, message: 'File is too large. Please upload a smaller file.' });
+                }
+                return res.status(500).json({ success: false, message: 'Failed to upload file' });
+            }
+
+            // Get the public URL of the uploaded file
+            const { data: publicURLData } = supabase.storage
+                .from('resources')
+                .getPublicUrl(fileName);
+                
+            url = publicURLData.publicUrl;
+        }
+
         const { data, error } = await supabase
             .from('resources')
             .insert([
@@ -105,8 +140,9 @@ router.post('/', authMiddleware, async function (req, res, next) {
                     user_id: req.user.id,        // Track who uploaded it
                     title: title,
                     description: description || '',
-                    url: url || null,
-                    category: category || 'general'
+                    url: url,
+                    category: category || 'general',
+                    semester: semester || '1'
                 }
             ])
             .select();
@@ -163,6 +199,118 @@ router.delete('/:id', authMiddleware, async function (req, res, next) {
         res.json({
             success: true,
             message: 'Resource deleted successfully!'
+        });
+
+    } catch (err) {
+        next(err);
+    }
+});
+
+
+/* ─────────────────────────────────────────────
+   POST /api/resources/:id/view
+   ─────────────────────────────────────────────
+   Increments the view count for a specific resource
+   ───────────────────────────────────────────── */
+router.post('/:id/view', async function (req, res, next) {
+    try {
+        const resourceId = req.params.id;
+
+        // Fetch current views
+        const { data: current, error: fetchErr } = await supabase
+            .from('resources')
+            .select('view_count')
+            .eq('id', resourceId)
+            .single();
+
+        if (fetchErr) {
+            console.error("View Fetch Error:", fetchErr);
+            return res.status(500).json({ success: false, message: 'DB Error: ' + fetchErr.message });
+        }
+        if (!current) {
+            return res.status(404).json({ success: false, message: 'Resource not found' });
+        }
+
+        // Increment it
+        const { data, error } = await supabase
+            .from('resources')
+            .update({ view_count: (current.view_count || 0) + 1 })
+            .eq('id', resourceId)
+            .select();
+
+        if (error) throw new Error(error.message);
+
+        res.json({ success: true, view_count: data[0].view_count });
+    } catch (err) {
+        next(err);
+    }
+});
+
+
+/* ─────────────────────────────────────────────
+   POST /api/resources/:id/vote
+   ─────────────────────────────────────────────
+   Increments upvotes or downvotes 
+   Expected Body: { direction: 'up' | 'down' }
+   ───────────────────────────────────────────── */
+router.post('/:id/vote', authMiddleware, async function (req, res, next) {
+    try {
+        const resourceId = req.params.id;
+        const { direction, previous } = req.body;
+
+        if (direction !== 'up' && direction !== 'down') {
+            return res.status(400).json({ success: false, message: "Direction must be 'up' or 'down'" });
+        }
+
+        // Fetch current votes
+        const { data: current, error: fetchErr } = await supabase
+            .from('resources')
+            .select('upvotes, downvotes')
+            .eq('id', resourceId)
+            .single();
+
+        if (fetchErr) {
+            console.error("Vote Fetch Error:", fetchErr);
+            return res.status(500).json({ success: false, message: 'DB Error: ' + fetchErr.message });
+        }
+        if (!current) return res.status(404).json({ success: false, message: 'Resource not found' });
+
+        const updates = { 
+            upvotes: current.upvotes || 0, 
+            downvotes: current.downvotes || 0 
+        };
+
+        // Logic for Reddit-style vote swapping!
+        if (direction === previous) {
+            // User clicked the SAME button — meaning they want to REMOVE their vote!
+            if (direction === 'up') updates.upvotes = Math.max(0, updates.upvotes - 1);
+            if (direction === 'down') updates.downvotes = Math.max(0, updates.downvotes - 1);
+        } else {
+            // User is casting a new vote, or swapping their vote
+            if (direction === 'up') updates.upvotes += 1;
+            if (direction === 'down') updates.downvotes += 1;
+            
+            // If they swapped, decrement the previous one they had active
+            if (previous === 'up') updates.upvotes = Math.max(0, updates.upvotes - 1);
+            if (previous === 'down') updates.downvotes = Math.max(0, updates.downvotes - 1);
+        }
+
+        // Update specific metric
+        const { data, error } = await supabase
+            .from('resources')
+            .update(updates)
+            .eq('id', resourceId)
+            .select();
+
+        if (error) {
+            console.error("Vote Update Error:", error);
+            throw new Error(error.message);
+        }
+
+        res.json({ 
+            success: true, 
+            upvotes: data[0].upvotes,
+            downvotes: data[0].downvotes 
         });
 
     } catch (err) {

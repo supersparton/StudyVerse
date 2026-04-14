@@ -14,71 +14,191 @@
    within a single page — no URL changes needed, just state updates!
    ============================================================ */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import '../styles/resources.css';
 import '../styles/modals.css';
 
 function ResourcesPage() {
     // ─── NAVIGATION STATE ───
-    // "view" tracks where we are: 'semesters', 'subjects', or 'files'
-    const [view, setView] = useState('semesters');
+    const [view, setView] = useState('semesters'); // 'semesters', 'categories' or 'files'
     const [selectedSemester, setSelectedSemester] = useState(null);
-    const [selectedSubject, setSelectedSubject] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
 
-    // ─── DATA ───
-    const semesters = [
-        { id: 1, name: 'Semester 1', subjects: 6, color: '#6366f1' },
-        { id: 2, name: 'Semester 2', subjects: 6, color: '#8b5cf6' },
-        { id: 3, name: 'Semester 3', subjects: 5, color: '#ec4899' },
-        { id: 4, name: 'Semester 4', subjects: 5, color: '#f59e0b' },
-        { id: 5, name: 'Semester 5', subjects: 4, color: '#10b981' },
-        { id: 6, name: 'Semester 6', subjects: 4, color: '#06b6d4' },
-    ];
+    // ─── DATA STATE ───
+    const [resources, setResources] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const subjectsData = {
-        1: [
-            { name: 'Mathematics I', files: 12, color: '#6366f1' },
-            { name: 'Physics', files: 8, color: '#f59e0b' },
-            { name: 'Chemistry', files: 6, color: '#10b981' },
-            { name: 'English', files: 4, color: '#ec4899' },
-            { name: 'Computer Fundamentals', files: 10, color: '#8b5cf6' },
-            { name: 'Engineering Drawing', files: 3, color: '#06b6d4' },
-        ],
-    };
+    // Upload form state
+    const [formTitle, setFormTitle] = useState('');
+    const [formCategory, setFormCategory] = useState('notes');
+    const [formSemester, setFormSemester] = useState('1');
+    const [formFile, setFormFile] = useState(null);
 
-    const filesData = [
-        { name: 'Chapter 1 Notes.pdf', type: 'PDF', size: '2.4 MB', uploader: 'Alex S.', votes: 12, iconColor: '#ef4444', iconBg: '#fee2e2' },
-        { name: 'Lecture Recording — Limits', type: 'Video', size: '45 MB', uploader: 'Priya K.', votes: 8, iconColor: '#8b5cf6', iconBg: '#ede9fe' },
-        { name: 'Formula Sheet', type: 'PDF', size: '540 KB', uploader: 'Rohan M.', votes: 24, iconColor: '#ef4444', iconBg: '#fee2e2' },
-        { name: 'Practice Problems Set 1', type: 'PDF', size: '1.1 MB', uploader: 'Sneha R.', votes: 6, iconColor: '#ef4444', iconBg: '#fee2e2' },
-    ];
+    const API = import.meta.env.VITE_API_URL;
 
-    // ─── NAVIGATION FUNCTIONS ───
-    function goToSubjects(semester) {
-        setSelectedSemester(semester);
-        setView('subjects');
+    function getToken() {
+        var user = localStorage.getItem('studyverse-user');
+        return user ? JSON.parse(user).token : null;
     }
 
-    function goToFiles(subject) {
-        setSelectedSubject(subject);
-        setView('files');
-    }
-
-    function goBack(level) {
-        if (level === 'semesters') {
-            setView('semesters');
-            setSelectedSemester(null);
-            setSelectedSubject(null);
-        } else if (level === 'subjects') {
-            setView('subjects');
-            setSelectedSubject(null);
+    // ─── FETCH DATA ───
+    async function fetchResources() {
+        try {
+            let response = await fetch(API + '/api/resources');
+            let data = await response.json();
+            if (data.success) {
+                setResources(data.resources);
+                // Extract unique categories
+                const cats = [...new Set(data.resources.map(r => r.category || 'general'))];
+                // Add default categories if empty so UI isn't blank
+                setCategories(cats.length > 0 ? cats : ['notes', 'exams', 'assignments', 'general']);
+            }
+        } catch (err) {
+            console.error('Failed to fetch resources:', err);
+        } finally {
+            setLoading(false);
         }
     }
 
-    // Get subjects for selected semester (default to sem 1 data)
-    var currentSubjects = subjectsData[selectedSemester?.id] || subjectsData[1];
+    useEffect(() => {
+        fetchResources();
+    }, []);
+
+    // ─── UPLOAD RESOURCE ───
+    async function handleUpload() {
+        if (!formTitle) return alert('Title is required');
+        
+        // --- Limit file size to 10MB client-side ---
+        if (formFile && formFile.size > 10 * 1024 * 1024) {
+            return alert('File size is too large! Please upload a file smaller than 10MB.');
+        }
+
+        try {
+            let formData = new FormData();
+            formData.append('title', formTitle);
+            formData.append('category', formCategory);
+            formData.append('semester', formSemester);
+            if (formFile) formData.append('file', formFile);
+
+            let res = await fetch(API + '/api/resources', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + getToken() },
+                body: formData
+            });
+            let data = await res.json();
+            if (data.success) {
+                alert('Resource uploaded successfully!');
+                setShowUploadModal(false);
+                setFormTitle('');
+                setFormFile(null);
+                fetchResources();
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // ─── DELETE RESOURCE ───
+    async function handleDelete(id) {
+        if(!confirm('Are you sure you want to delete this resource?')) return;
+        try {
+            let res = await fetch(API + '/api/resources/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            let data = await res.json();
+            if (data.success) {
+                fetchResources();
+            } else {
+                alert(data.message);
+            }
+        } catch(e) {}
+    }
+
+    // ─── RESOURCE METRICS ───
+    async function handleVote(id, direction) {
+        try {
+            const previousVote = resources.find(r => r.id === id)?._userVote || null;
+
+            // Optimistic UI update: immediately change the state
+            setResources(prev => prev.map(r => {
+                if(r.id === id) {
+                    let newUp = r.upvotes || 0;
+                    let newDown = r.downvotes || 0;
+                    let newVote = direction;
+
+                    if (direction === previousVote) {
+                        // Canceling vote
+                        if (direction === 'up') newUp = Math.max(0, newUp - 1);
+                        if (direction === 'down') newDown = Math.max(0, newDown - 1);
+                        newVote = null;
+                    } else {
+                        // Swapping or New vote
+                        if (direction === 'up') newUp += 1;
+                        if (direction === 'down') newDown += 1;
+                        if (previousVote === 'up') newUp = Math.max(0, newUp - 1);
+                        if (previousVote === 'down') newDown = Math.max(0, newDown - 1);
+                    }
+
+                    return { ...r, upvotes: newUp, downvotes: newDown, _userVote: newVote };
+                }
+                return r;
+            }));
+
+            // Sync with backend
+            await fetch(API + `/api/resources/${id}/vote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+                body: JSON.stringify({ direction, previous: previousVote })
+            });
+        } catch(e) { }
+    }
+
+    function logView(id) {
+        fetch(API + `/api/resources/${id}/view`, { method: 'POST' }).catch(console.error);
+        
+        // Optimistically increment view
+        setResources(prev => prev.map(r => {
+            if (r.id === id) return { ...r, view_count: (r.view_count || 0) + 1 };
+            return r;
+        }));
+    }
+
+    // ─── NAVIGATION FUNCTIONS ───
+    function goToCategories(sem) {
+        setSelectedSemester(sem);
+        setView('categories');
+    }
+
+    function goToFiles(category) {
+        setSelectedCategory(category);
+        setView('files');
+    }
+
+    function goBack() {
+        if (view === 'files') {
+            setView('categories');
+            setSelectedCategory(null);
+        } else if (view === 'categories') {
+            setView('semesters');
+            setSelectedSemester(null);
+        }
+    }
+
+    // Filter resources based on selections
+    var currentFiles = resources.filter(r => 
+        (r.semester || '1') === selectedSemester && 
+        (r.category || 'general') === selectedCategory
+    );
+    
+    // Unique Semesters
+    const semesters = [...new Set(resources.map(r => r.semester || '1'))].sort();
+    var colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
 
     return (
         <DashboardLayout>
@@ -109,53 +229,51 @@ function ResourcesPage() {
 
                     {/* ─── Breadcrumb Navigation ─── */}
                     <div className="res-breadcrumb fade-in-up">
-                        <a onClick={function () { goBack('semesters'); }}>All Semesters</a>
+                        <a onClick={() => { setView('semesters'); setSelectedSemester(null); setSelectedCategory(null); }}>All Semesters</a>
                         {selectedSemester && (
                             <>
                                 <span className="sep">›</span>
-                                {view === 'subjects' ? (
-                                    <span className="current">{selectedSemester.name}</span>
-                                ) : (
-                                    <a onClick={function () { goBack('subjects'); }}>{selectedSemester.name}</a>
-                                )}
+                                <a onClick={() => { setView('categories'); setSelectedCategory(null); }}>Semester {selectedSemester}</a>
                             </>
                         )}
-                        {selectedSubject && (
+                        {selectedCategory && (
                             <>
                                 <span className="sep">›</span>
-                                <span className="current">{selectedSubject.name}</span>
+                                <span className="current" style={{ textTransform: 'capitalize' }}>{selectedCategory}</span>
                             </>
                         )}
                     </div>
 
-                    {/* ─── SEMESTER VIEW ─── */}
+                    {/* ─── SEMESTERS VIEW ─── */}
                     {view === 'semesters' && (
                         <div className="res-grid fade-in-up fade-in-up-delay-1">
-                            {semesters.map(function (sem) {
+                            {['1', '2', '3', '4', '5', '6', '7', '8'].map(function (sem, i) {
+                                let count = resources.filter(r => (r.semester || '1') === sem).length;
                                 return (
-                                    <div className="res-folder" key={sem.id} onClick={function () { goToSubjects(sem); }}>
-                                        <div className="res-folder-icon" style={{ background: sem.color }}>
-                                            <span className="material-symbols-outlined">folder</span>
+                                    <div className="res-folder" key={sem} onClick={function () { goToCategories(sem); }}>
+                                        <div className="res-folder-icon" style={{ background: colors[i % colors.length] }}>
+                                            <span className="material-symbols-outlined">school</span>
                                         </div>
-                                        <h4>{sem.name}</h4>
-                                        <p>{sem.subjects} subjects</p>
+                                        <h4>Semester {sem}</h4>
+                                        <p>{count} resources</p>
                                     </div>
                                 );
                             })}
                         </div>
                     )}
 
-                    {/* ─── SUBJECT VIEW ─── */}
-                    {view === 'subjects' && (
+                    {/* ─── CATEGORY VIEW ─── */}
+                    {view === 'categories' && (
                         <div className="res-grid fade-in-up fade-in-up-delay-1">
-                            {currentSubjects.map(function (sub, i) {
+                            {categories.map(function (cat, i) {
+                                let count = resources.filter(r => (r.semester || '1') === selectedSemester && (r.category || 'general') === cat).length;
                                 return (
-                                    <div className="res-folder" key={i} onClick={function () { goToFiles(sub); }}>
-                                        <div className="res-folder-icon" style={{ background: sub.color }}>
-                                            <span className="material-symbols-outlined">menu_book</span>
+                                    <div className="res-folder" key={cat} onClick={function () { goToFiles(cat); }}>
+                                        <div className="res-folder-icon" style={{ background: colors[i % colors.length] }}>
+                                            <span className="material-symbols-outlined">folder</span>
                                         </div>
-                                        <h4>{sub.name}</h4>
-                                        <p>{sub.files} files</p>
+                                        <h4 style={{ textTransform: 'capitalize' }}>{cat}</h4>
+                                        <p>{count} resources</p>
                                     </div>
                                 );
                             })}
@@ -165,29 +283,73 @@ function ResourcesPage() {
                     {/* ─── FILES VIEW ─── */}
                     {view === 'files' && (
                         <div className="file-list fade-in-up fade-in-up-delay-1">
-                            {filesData.map(function (file, i) {
+                            {currentFiles.length === 0 ? (
+                                <p style={{ color: 'var(--text-muted)' }}>No resources uploaded here yet.</p>
+                            ) : currentFiles.map(function (file) {
                                 return (
-                                    <div className="file-card" key={i}>
-                                        <div className="file-icon" style={{ background: file.iconBg, color: file.iconColor }}>
+                                    <div className="file-card" key={file.id}>
+                                        <div className="file-icon" style={{ background: '#ede9fe', color: '#8b5cf6' }}>
                                             <span className="material-symbols-outlined">
-                                                {file.type === 'Video' ? 'videocam' : 'picture_as_pdf'}
+                                                {file.url && file.url.startsWith('https://') ? 'file_download' : 'description'}
                                             </span>
                                         </div>
-                                        <div className="file-info">
-                                            <h4>{file.name}</h4>
-                                            <div className="file-meta">
-                                                <span>{file.type}</span>
-                                                <span>{file.size}</span>
-                                                <span>by {file.uploader}</span>
+                                        <div className="file-info" style={{ flex: 1 }}>
+                                            <h4 style={{ marginBottom: '4px' }}>{file.title}</h4>
+                                            
+                                            {/* Uploader Details */}
+                                            {file.users && (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                                                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--indigo-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                                        {file.users.avatar_url && file.users.avatar_url.startsWith('http') ? (
+                                                            <img src={file.users.avatar_url} alt="author" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        ) : (
+                                                            <span style={{ fontSize: '12px' }}>{file.users.avatar_url || '👨‍🎓'}</span>
+                                                        )}
+                                                    </div>
+                                                    <span>{file.users.full_name}</span>
+                                                </div>
+                                            )}
+
+                                            <div className="file-meta" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                                <span>{new Date(file.created_at).toLocaleDateString()}</span>
+                                                {/* Views display */}
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>visibility</span>
+                                                    {file.view_count || 0}
+                                                </span>
+                                                
+                                                {file.url && (
+                                                    <span>
+                                                        <a href={file.url} target="_blank" rel="noreferrer" onClick={() => logView(file.id)} style={{ color: 'var(--primary)', fontWeight: '600' }}>
+                                                            View File
+                                                        </a>
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className="vote-actions">
-                                            <button className="vote-btn">
-                                                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>thumb_up</span>
-                                            </button>
-                                            <span className="vote-count">{file.votes}</span>
-                                            <button className="vote-btn">
-                                                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>thumb_down</span>
+                                        <div className="vote-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{ display: 'flex', gap: '12px', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '20px' }}>
+                                                <button 
+                                                    className="vote-btn" 
+                                                    onClick={() => handleVote(file.id, 'up')}
+                                                    style={{ display: 'flex', gap: '4px', alignItems: 'center', color: file._userVote === 'up' ? 'var(--green)' : 'var(--text-muted)' }}
+                                                    title="Upvote"
+                                                >
+                                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>thumb_up</span>
+                                                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: file._userVote === 'up' ? 'var(--green)' : 'var(--text-primary)' }}>{file.upvotes || 0}</span>
+                                                </button>
+                                                <button 
+                                                    className="vote-btn" 
+                                                    onClick={() => handleVote(file.id, 'down')}
+                                                    style={{ display: 'flex', gap: '4px', alignItems: 'center', color: file._userVote === 'down' ? 'var(--orange)' : 'var(--text-muted)' }}
+                                                    title="Downvote"
+                                                >
+                                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>thumb_down</span>
+                                                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: file._userVote === 'down' ? 'var(--orange)' : 'var(--text-primary)' }}>{file.downvotes || 0}</span>
+                                                </button>
+                                            </div>
+                                            <button className="vote-btn" onClick={() => handleDelete(file.id)} title="Delete (if yours)" style={{ padding: '6px' }}>
+                                                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#ef4444' }}>delete</span>
                                             </button>
                                         </div>
                                     </div>
@@ -208,25 +370,32 @@ function ResourcesPage() {
                     <p className="modal-sub">Share a resource with the community.</p>
                     <div className="modal-field">
                         <label>Title</label>
-                        <input type="text" placeholder="e.g., Chapter 3 Notes" />
+                        <input type="text" placeholder="e.g., Chapter 3 Notes" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
                     </div>
                     <div className="modal-field">
                         <label>Semester</label>
-                        <select><option>Semester 1</option><option>Semester 2</option><option>Semester 3</option></select>
+                        <select value={formSemester} onChange={(e) => setFormSemester(e.target.value)}>
+                            {['1', '2', '3', '4', '5', '6', '7', '8'].map(sem => (
+                                <option key={sem} value={sem}>Semester {sem}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="modal-field">
-                        <label>Subject</label>
-                        <select><option>Mathematics I</option><option>Physics</option><option>Chemistry</option></select>
+                        <label>Category</label>
+                        <select value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
+                            <option value="notes">Notes</option>
+                            <option value="exams">Exams</option>
+                            <option value="assignments">Assignments</option>
+                            <option value="general">General</option>
+                        </select>
                     </div>
                     <div className="modal-field">
-                        <div className="file-drop-zone">
-                            <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>cloud_upload</span>
-                            <p>Click to upload or drag &amp; drop</p>
-                        </div>
+                        <label>Upload File</label>
+                        <input type="file" onChange={(e) => setFormFile(e.target.files[0])} />
                     </div>
                     <div className="modal-actions">
                         <button className="btn btn-outline" onClick={function () { setShowUploadModal(false); }}>Cancel</button>
-                        <button className="btn btn-primary" onClick={function () { setShowUploadModal(false); alert('Resource uploaded! ✅'); }}>Upload</button>
+                        <button className="btn btn-primary" onClick={handleUpload}>Upload</button>
                     </div>
                 </div>
             </div>

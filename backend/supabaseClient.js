@@ -14,11 +14,14 @@ require('dotenv').config();
 
 // Read our Supabase credentials from .env
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+// IMPORTANT: Use the Service Role Key if available to bypass Row Level Security.
+// Our backend handles security via our own custom JWT middleware.
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 // Safety check: crash early if credentials are missing
 if (!supabaseUrl || !supabaseKey) {
-    console.error('ERROR: Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env file!');
+    console.error('ERROR: Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env file!');
     process.exit(1);
 }
 

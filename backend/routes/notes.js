@@ -148,8 +148,13 @@ router.put('/:id', async function (req, res, next) {
         // Get the note ID from the URL parameter
         const noteId = req.params.id;
 
-        // Get the updated fields from the request body
-        const { title, content, subject } = req.body;
+        const { title, content, subject, is_favorite } = req.body;
+
+        const updates = {};
+        if (title !== undefined) updates.title = title;
+        if (content !== undefined) updates.content = content;
+        if (subject !== undefined) updates.subject = subject;
+        if (is_favorite !== undefined) updates.is_favorite = is_favorite;
 
         // Update the note in Supabase
         // We use TWO .eq() filters to ensure:
@@ -157,11 +162,7 @@ router.put('/:id', async function (req, res, next) {
         // 2. The note belongs to this user (security — prevents editing others' notes!)
         const { data, error } = await supabase
             .from('notes')
-            .update({
-                title: title,
-                content: content,
-                subject: subject
-            })
+            .update(updates)
             .eq('id', noteId)               // WHERE id = the note's ID
             .eq('user_id', req.user.id)     // AND user_id = logged-in user
             .select();                       // Return the updated row

@@ -18,13 +18,19 @@ function SignupPage() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
+    // New profile fields
+    const [enrollmentNo, setEnrollmentNo] = useState('');
+    const [branch, setBranch] = useState('');
+    const [semester, setSemester] = useState('');
+    const [bio, setBio] = useState('');
+
     const navigate = useNavigate();
 
     // Handle form submission — sends data to our Express backend
     async function handleSignup() {
         // Basic validation
-        if (!name || !email || !password) {
-            alert('All fields are required');
+        if (!name || !email || !password || !college || !enrollmentNo || !branch || !semester) {
+            alert('Please fill out all required academic fields');
             return;
         }
 
@@ -36,7 +42,12 @@ function SignupPage() {
                 body: JSON.stringify({
                     full_name: name,
                     email: email,
-                    password: password
+                    password: password,
+                    enrollment_no: enrollmentNo,
+                    college: college,
+                    branch: branch,
+                    semester: semester,
+                    bio: bio
                 })
             });
 
@@ -104,30 +115,74 @@ function SignupPage() {
                     <div className="divider"><span>Or register with email</span></div>
 
                     <div className="form-stack">
-                        {/* Name + College row (side by side) */}
+                        {/* Name + Email row (side by side) */}
                         <div className="form-row">
                             <div className="form-group">
-                                <label htmlFor="name">Full Name</label>
+                                <label htmlFor="name">Full Name *</label>
                                 <input
                                     className="form-input" id="name" type="text" placeholder="Jane Doe"
                                     value={name} onChange={function (e) { setName(e.target.value); }}
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="college">College / University</label>
+                                <label htmlFor="email">Email Address *</label>
+                                <input
+                                    className="form-input" id="email" type="email" placeholder="jane@example.com"
+                                    value={email} onChange={function (e) { setEmail(e.target.value); }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* College + Branch row (side by side) */}
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="college">College / University *</label>
                                 <input
                                     className="form-input" id="college" type="text" placeholder="Adani University"
                                     value={college} onChange={function (e) { setCollege(e.target.value); }}
                                 />
                             </div>
+                            <div className="form-group">
+                                <label htmlFor="branch">Branch / Department *</label>
+                                <input
+                                    className="form-input" id="branch" type="text" placeholder="Computer Science"
+                                    value={branch} onChange={function (e) { setBranch(e.target.value); }}
+                                />
+                            </div>
                         </div>
 
+                        {/* Enrollment + Semester row */}
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="enrollment">Enrollment No. *</label>
+                                <input
+                                    className="form-input" id="enrollment" type="text" placeholder="AU12345"
+                                    value={enrollmentNo} onChange={function (e) { setEnrollmentNo(e.target.value); }}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="semester">Semester *</label>
+                                <select className="form-input" id="semester" value={semester} onChange={function (e) { setSemester(e.target.value); }}>
+                                    <option value="">Select Semester</option>
+                                    <option value="1">Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                    <option value="4">Semester 4</option>
+                                    <option value="5">Semester 5</option>
+                                    <option value="6">Semester 6</option>
+                                    <option value="7">Semester 7</option>
+                                    <option value="8">Semester 8</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Bio */}
                         <div className="form-group">
-                            <label htmlFor="email">Email Address</label>
-                            <input
-                                className="form-input" id="email" type="email" placeholder="jane@example.com"
-                                value={email} onChange={function (e) { setEmail(e.target.value); }}
-                            />
+                            <label htmlFor="bio">Bio</label>
+                            <textarea
+                                className="form-input" id="bio" placeholder="Tell us about yourself..."
+                                value={bio} onChange={function (e) { setBio(e.target.value); }} rows="2"
+                            ></textarea>
                         </div>
 
                         <div className="form-group">

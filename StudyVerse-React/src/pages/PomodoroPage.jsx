@@ -36,8 +36,35 @@ function PomodoroPage() {
     const [sessionsCompleted, setSessionsCompleted] = useState(0);
     const [totalFocusSeconds, setTotalFocusSeconds] = useState(0);
 
+    // Dynamic Task Selection
+    const [tasks, setTasks] = useState([]);
+    const [activeTask, setActiveTask] = useState(null);
+
     // useRef stores the interval ID — doesn't cause re-renders
     const intervalRef = useRef(null);
+
+    // Initial Fetch for Active Tasks
+    useEffect(() => {
+        async function fetchTasks() {
+            try {
+                let userStr = localStorage.getItem('studyverse-user');
+                if(!userStr) return;
+                let token = JSON.parse(userStr).token;
+                let res = await fetch(import.meta.env.VITE_API_URL + '/api/tasks', { 
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                let data = await res.json();
+                if(data.success && data.tasks.length > 0) {
+                    let pending = data.tasks.filter(t => t.status !== 'completed');
+                    setTasks(pending);
+                    if(pending.length > 0) setActiveTask(pending[0]);
+                }
+            } catch(e) {
+                console.error("Failed to fetch tasks for Pomodoro:", e);
+            }
+        }
+        fetchTasks();
+    }, []);
 
     // ─── FORMAT TIME (seconds → "MM:SS") ───
     function formatTime(seconds) {
@@ -99,6 +126,24 @@ function PomodoroPage() {
                         if (currentMode === 'focus') {
                             setSessionsCompleted(function (s) { return s + 1; });
                             setTotalFocusSeconds(function (t) { return t + modes.focus.time; });
+
+                            // SAVE SESSION TO DATABASE
+                            try {
+                                let userStr = localStorage.getItem('studyverse-user');
+                                if(userStr) {
+                                    let token = JSON.parse(userStr).token;
+                                    fetch(import.meta.env.VITE_API_URL + '/api/pomodoro/session', {
+                                        method: 'POST',
+                                        headers: { 
+                                            'Content-Type': 'application/json', 
+                                            'Authorization': 'Bearer ' + token 
+                                        },
+                                        body: JSON.stringify({ focus_seconds: modes.focus.time })
+                                    });
+                                }
+                            } catch (e) {
+                                console.error("Failed to save session", e);
+                            }
                         }
 
                         alert('Timer complete! 🎉');
@@ -208,14 +253,34 @@ function PomodoroPage() {
 
                     {/* Current Task */}
                     <div className="pomodoro-current-task fade-in-up fade-in-up-delay-4">
-                        <h3 style={{ marginBottom: '12px' }}>Currently Working On</h3>
-                        <div className="current-task-card">
-                            <div>
-                                <h4>Review Calculus Chapter 4</h4>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Mathematics — Due today</p>
-                            </div>
-                            <span className="badge badge-red">High</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                            <h3 style={{ margin: 0 }}>Currently Working On</h3>
+                            {tasks.length > 0 && (
+                                <select 
+                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-main)', outline: 'none', cursor: 'pointer' }}
+                                    value={activeTask?.id || ''}
+                                    onChange={(e) => setActiveTask(tasks.find(t => t.id == e.target.value))}
+                                >
+                                    {tasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
+                                </select>
+                            )}
                         </div>
+                        
+                        {activeTask ? (
+                            <div className="current-task-card">
+                                <div>
+                                    <h4>{activeTask.title}</h4>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{activeTask.description || 'No description'}</p>
+                                </div>
+                                <span className={'badge ' + (activeTask.priority === 'high' ? 'badge-red' : activeTask.priority === 'medium' ? 'badge-orange' : 'badge-green')}>
+                                    {activeTask.priority}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="current-task-card" style={{ justifyContent: 'center' }}>
+                                <p style={{ color: 'var(--text-muted)' }}>No pending tasks available.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
