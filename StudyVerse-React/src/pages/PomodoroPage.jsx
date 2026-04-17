@@ -30,11 +30,21 @@ function PomodoroPage() {
     };
 
     // ─── STATE VARIABLES ───
-    const [currentMode, setCurrentMode] = useState('focus');     // 'focus', 'short', or 'long'
-    const [timeLeft, setTimeLeft] = useState(modes.focus.time);  // Seconds remaining
-    const [isRunning, setIsRunning] = useState(false);           // Is timer counting down?
-    const [sessionsCompleted, setSessionsCompleted] = useState(0);
-    const [totalFocusSeconds, setTotalFocusSeconds] = useState(0);
+    const [currentMode, setCurrentMode] = useState('focus');
+    // Store time left for EACH mode separately to prevent progress loss when swapping tabs
+    const [timeLeftMap, setTimeLeftMap] = useState({
+        focus: modes.focus.time,
+        short: modes.short.time,
+        long: modes.long.time
+    });
+    const timeLeft = timeLeftMap[currentMode];
+
+    const [isRunning, setIsRunning] = useState(false);
+    const [stats, setStats] = useState({
+        sessionsToday: 0,
+        totalFocusTime: '0m',
+        streak: '0 Day'
+    });
 
     // Dynamic Task Selection
     const [tasks, setTasks] = useState([]);
@@ -42,8 +52,31 @@ function PomodoroPage() {
 
     // useRef stores the interval ID — doesn't cause re-renders
     const intervalRef = useRef(null);
+    const accumulatedRef = useRef(0);
 
-    // Initial Fetch for Active Tasks
+    // ─── FETCH STATS FROM DB ───
+    async function fetchStats() {
+        try {
+            let userStr = localStorage.getItem('studyverse-user');
+            if(!userStr) return;
+            let token = JSON.parse(userStr).token;
+            let res = await fetch(import.meta.env.VITE_API_URL + '/api/analytics', { 
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            let analyticsData = await res.json();
+            if (analyticsData.success) {
+                setStats({
+                    sessionsToday: analyticsData.sessionsToday || 0,
+                    totalFocusTime: analyticsData.stats.totalStudyHours || '0m',
+                    streak: (analyticsData.stats.streakDays || 0) + ' Days'
+                });
+            }
+        } catch(e) {
+            console.error("Failed to fetch analytics for Pomodoro:", e);
+        }
+    }
+
+    // Initial Fetch for Active Tasks and Stats
     useEffect(() => {
         async function fetchTasks() {
             try {
@@ -64,6 +97,7 @@ function PomodoroPage() {
             }
         }
         fetchTasks();
+        fetchStats();
     }, []);
 
     // ─── FORMAT TIME (seconds → "MM:SS") ───
@@ -73,22 +107,51 @@ function PomodoroPage() {
         return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
     }
 
+    // ─── SAVE SESSION TO DATABASE HELPER ───
+    async function saveSessionToDatabase() {
+        const seconds = accumulatedRef.current;
+        if (seconds < 5) return; // Only save if more than 5s focused
+
+        try {
+            let userStr = localStorage.getItem('studyverse-user');
+            if (userStr) {
+                let token = JSON.parse(userStr).token;
+                const response = await fetch(import.meta.env.VITE_API_URL + '/api/pomodoro/session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ focus_seconds: seconds })
+                });
+                if (response.ok) {
+                    accumulatedRef.current = 0; // Reset after saving
+                    fetchStats(); // Update stats immediately
+                }
+            }
+        } catch (e) {
+            console.error("Failed to save session", e);
+        }
+    }
+
     // ─── SWITCH MODE ───
     function switchMode(mode) {
-        clearInterval(intervalRef.current); // Stop any running timer
+        // Stop timer but don't reset focus progress unless finished
+        clearInterval(intervalRef.current);
         setIsRunning(false);
         setCurrentMode(mode);
-        setTimeLeft(modes[mode].time);      // Reset time to mode's default
     }
 
     // ─── TOGGLE TIMER (Start / Pause) ───
     function toggleTimer() {
         if (isRunning) {
-            // PAUSE: stop the countdown
             clearInterval(intervalRef.current);
             setIsRunning(false);
         } else {
-            // START: begin counting down every 1 second
+            // If starting a break and we have focus time saved, flush it to DB
+            if (currentMode !== 'focus' && accumulatedRef.current > 5) {
+                saveSessionToDatabase();
+            }
             setIsRunning(true);
         }
     }
@@ -97,74 +160,73 @@ function PomodoroPage() {
     function resetTimer() {
         clearInterval(intervalRef.current);
         setIsRunning(false);
-        setTimeLeft(modes[currentMode].time);
+        setTimeLeftMap(prev => ({
+            ...prev,
+            [currentMode]: modes[currentMode].time
+        }));
+        if (currentMode === 'focus') {
+            accumulatedRef.current = 0;
+        }
     }
 
     // ─── SKIP TO NEXT MODE ───
     function skipTimer() {
         if (currentMode === 'focus') {
-            switchMode(sessionsCompleted > 0 && sessionsCompleted % 4 === 0 ? 'long' : 'short');
+            // Just move to break, logic will handle save if they start it
+            switchMode('short');
         } else {
             switchMode('focus');
         }
     }
 
     // ─── useEffect: RUNS THE COUNTDOWN ───
-    // This effect runs whenever "isRunning" changes.
-    // If isRunning is true, it starts a setInterval that
-    // decrements timeLeft by 1 every second.
     useEffect(function () {
         if (isRunning) {
             intervalRef.current = setInterval(function () {
-                setTimeLeft(function (prev) {
+                if (currentMode === 'focus') {
+                    accumulatedRef.current += 1;
+                }
+
+                setTimeLeftMap(function (prevMap) {
+                    const prev = prevMap[currentMode];
                     if (prev <= 1) {
-                        // Timer reached 0!
                         clearInterval(intervalRef.current);
                         setIsRunning(false);
 
-                        // If we just finished a focus session, update stats
                         if (currentMode === 'focus') {
-                            setSessionsCompleted(function (s) { return s + 1; });
-                            setTotalFocusSeconds(function (t) { return t + modes.focus.time; });
-
-                            // SAVE SESSION TO DATABASE
-                            try {
-                                let userStr = localStorage.getItem('studyverse-user');
-                                if(userStr) {
-                                    let token = JSON.parse(userStr).token;
-                                    fetch(import.meta.env.VITE_API_URL + '/api/pomodoro/session', {
-                                        method: 'POST',
-                                        headers: { 
-                                            'Content-Type': 'application/json', 
-                                            'Authorization': 'Bearer ' + token 
-                                        },
-                                        body: JSON.stringify({ focus_seconds: modes.focus.time })
-                                    });
-                                }
-                            } catch (e) {
-                                console.error("Failed to save session", e);
-                            }
+                            saveSessionToDatabase(); 
                         }
 
                         alert('Timer complete! 🎉');
-                        return 0;
+                        return {
+                            ...prevMap,
+                            [currentMode]: 0
+                        };
                     }
-                    return prev - 1; // Subtract 1 second
+                    return {
+                        ...prevMap,
+                        [currentMode]: prev - 1
+                    };
                 });
-            }, 1000); // Run every 1000ms = 1 second
+            }, 1000);
         }
 
-        // CLEANUP: runs when isRunning changes or component unmounts
         return function () {
             clearInterval(intervalRef.current);
         };
-    }, [isRunning]); // Only re-run when isRunning changes
+    }, [isRunning, currentMode]);
 
-    // ─── Format total focus time for display ───
-    var totalMins = Math.floor(totalFocusSeconds / 60);
-    var focusDisplay = totalMins >= 60
-        ? Math.floor(totalMins / 60) + 'h ' + (totalMins % 60) + 'm'
-        : totalMins + 'm';
+    // Save session on page unmount (user changes page)
+    useEffect(() => {
+        return () => {
+            if (accumulatedRef.current > 5) {
+                saveSessionToDatabase();
+            }
+        };
+    }, []);
+
+    // ─── Format total focus time for display (using fallback if totalFocusTime is not yet formatted) ───
+    const focusDisplay = stats.totalFocusTime || '0m';
 
     return (
         <DashboardLayout>
@@ -231,7 +293,7 @@ function PomodoroPage() {
                         <div className="pomo-stat-card">
                             <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: '28px' }}>local_fire_department</span>
                             <div>
-                                <h4>{sessionsCompleted}</h4>
+                                <h4>{stats.sessionsToday}</h4>
                                 <p>Sessions Today</p>
                             </div>
                         </div>
@@ -245,7 +307,7 @@ function PomodoroPage() {
                         <div className="pomo-stat-card">
                             <span className="material-symbols-outlined" style={{ color: 'var(--orange)', fontSize: '28px' }}>emoji_events</span>
                             <div>
-                                <h4>7 Day</h4>
+                                <h4>{stats.streak}</h4>
                                 <p>Current Streak</p>
                             </div>
                         </div>

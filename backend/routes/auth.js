@@ -79,6 +79,15 @@ router.post('/signup', async function (req, res, next) {
             });
         }
 
+        // New Password Validation logic
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 8 characters long, include at least one uppercase letter, and one special symbol.'
+            });
+        }
+
         // Step 3: Check if this email already exists in our database
         const { data: existingUser } = await supabase
             .from('users')           // Look in the "users" table

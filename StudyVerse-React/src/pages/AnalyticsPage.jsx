@@ -22,7 +22,7 @@ function AnalyticsPage() {
             totalStudyHours: '0h 0m',
             tasksCompleted: 0,
             tasksTotal: 0,
-            streakDays: 1,
+            streakDays: 0,
             productivityScore: 0
         },
         weeklyData: []
@@ -37,8 +37,11 @@ function AnalyticsPage() {
                 if(!userStr) return;
                 let token = JSON.parse(userStr).token;
                 
-                let res = await fetch(API + '/api/analytics', { headers: { 'Authorization': 'Bearer ' + token }});
+                let res = await fetch(API + `/api/analytics?filter=${encodeURIComponent(activeFilter)}`, { 
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
                 let data = await res.json();
+                console.log("[Analytics] Data received:", data);
                 if(data.success) {
                     setAnalytics(data);
                 }
@@ -47,17 +50,14 @@ function AnalyticsPage() {
             }
         }
         fetchAnalytics();
-    }, []);
+    }, [activeFilter]);
 
     const filters = ['Today', 'This Week', 'This Month', 'All Time'];
 
     return (
         <DashboardLayout>
             <header className="top-header">
-                <div className="search-bar">
-                    <span className="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Search analytics..." />
-                </div>
+                <div></div> {/* Empty div to maintain flex layout */}
                 <div className="header-actions">
                     <button className="btn btn-outline text-sm">
                         <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>download</span> Export
@@ -100,6 +100,15 @@ function AnalyticsPage() {
                                     <span className="material-symbols-outlined">schedule</span>
                                 </div>
                             </div>
+                            <h3>{activeFilter === 'All Time' ? analytics.stats.totalStudyHours : (analytics.stats.filteredStudyHours || '0m')}</h3>
+                            <p>{activeFilter === 'All Time' ? 'Total FocusTime' : activeFilter + "'s Focus"}</p>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <div className="stat-icon" style={{ background: 'var(--indigo-light)', color: 'var(--primary)' }}>
+                                    <span className="material-symbols-outlined">history</span>
+                                </div>
+                            </div>
                             <h3>{analytics.stats.totalStudyHours}</h3>
                             <p>Total Focus Time</p>
                         </div>
@@ -132,7 +141,7 @@ function AnalyticsPage() {
                                 {analytics.weeklyData && analytics.weeklyData.length > 0 ? (
                                     analytics.weeklyData.map(function (d) {
                                         return (
-                                            <div key={d.day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1 }}>
+                                            <div key={d.day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1, height: '100%', justifyContent: 'flex-end' }}>
                                                 {/* Bar — height determines how tall it is */}
                                                 <div style={{
                                                     width: '100%',

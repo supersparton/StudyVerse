@@ -14,21 +14,24 @@
    ============================================================ */
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 
 function DashboardPage() {
-    // ─── STATE variables ───
+    const navigate = useNavigate();
     const [userName, setUserName] = useState('Student');
     const [tasks, setTasks] = useState([]);
     const [communities, setCommunities] = useState([]);
+    const [notes, setNotes] = useState([]);
     const [analytics, setAnalytics] = useState({
         totalStudyHours: '0h 0m',
         tasksPending: 0,
         productivityScore: 0,
         resourcesShared: 0,
-        streakDays: 1
+        streakDays: 0
     });
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSearchResults, setShowSearchResults] = useState(false);
 
     const API = import.meta.env.VITE_API_URL;
 
@@ -55,14 +58,23 @@ function DashboardPage() {
                 let taskRes = await fetch(API + '/api/tasks', { headers: { 'Authorization': 'Bearer ' + token } });
                 let taskData = await taskRes.json();
                 if (taskData.success) {
-                    setTasks(taskData.tasks.filter(t => t.status !== 'completed').slice(0, 4));
+                    setTasks(taskData.tasks);
                 }
 
-                // Fetch Communities
-                let commRes = await fetch(API + '/api/communities');
+                // Fetch Communities (Joined only)
+                let commRes = await fetch(API + '/api/communities/joined', { 
+                    headers: { 'Authorization': 'Bearer ' + token } 
+                });
                 let commData = await commRes.json();
                 if (commData.success) {
-                    setCommunities(commData.communities.slice(0, 2));
+                    setCommunities(commData.communities);
+                }
+
+                // Fetch Notes
+                let notesRes = await fetch(API + '/api/notes', { headers: { 'Authorization': 'Bearer ' + token } });
+                let notesData = await notesRes.json();
+                if (notesData.success) {
+                    setNotes(notesData.notes);
                 }
 
                 // Fetch Analytics
@@ -75,11 +87,10 @@ function DashboardPage() {
 
                 if (analyticsData.success) {
                     setAnalytics({
-                        totalStudyHours: analyticsData.stats.totalStudyHours,
+                        totalStudyHours: analyticsData.stats.last24hFocusTime || '0m',
                         tasksPending: analyticsData.stats.tasksPending,
                         productivityScore: analyticsData.stats.productivityScore,
                         streakDays: analyticsData.stats.streakDays,
-                        // Calculate how many resources were uploaded by THIS user
                         resourcesShared: resData.success && parsedUser ? resData.resources.filter(r => r.user_id === parsedUser.id).length : 0 
                     });
                 }
@@ -109,9 +120,75 @@ function DashboardPage() {
         <DashboardLayout>
             {/* ─── Top Header ─── */}
             <header className="top-header">
-                <div className="search-bar">
-                    <span className="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Search notes, tasks, or communities..." />
+                <div className="search-wrapper">
+                    <div className="search-bar">
+                        <span className="material-symbols-outlined">search</span>
+                        <input 
+                            type="text" 
+                            placeholder="Explore your workspace..." 
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setShowSearchResults(e.target.value.trim() !== '');
+                            }}
+                            onFocus={() => setShowSearchResults(searchQuery.trim() !== '')}
+                        />
+                    </div>
+
+                    {/* ─── Global Search Results Popup ─── */}
+                    {showSearchResults && (
+                        <div className="search-results-dropdown">
+                            {tasks.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 &&
+                             notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 &&
+                             communities.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
+                                <div className="search-no-results">
+                                    <span className="material-symbols-outlined" style={{ fontSize: '40px', color: 'var(--text-muted)' }}>search_off</span>
+                                    <p>No match found for "{searchQuery}"</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Tasks */}
+                                    {tasks.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 3).map(task => (
+                                        <div key={task.id} className="search-result-item" onClick={() => navigate('/tasks')}>
+                                            <div className="search-result-icon" style={{ background: 'var(--orange-light)', color: 'var(--orange)' }}>
+                                                <span className="material-symbols-outlined">checklist</span>
+                                            </div>
+                                            <div className="search-result-info">
+                                                <span className="search-result-title">{task.title}</span>
+                                                <span className="search-result-subtitle">Task • {task.priority || 'med'} priority</span>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Notes */}
+                                    {notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 3).map(note => (
+                                        <div key={note.id} className="search-result-item" onClick={() => navigate('/notes')}>
+                                            <div className="search-result-icon" style={{ background: 'var(--purple-light)', color: 'var(--purple)' }}>
+                                                <span className="material-symbols-outlined">description</span>
+                                            </div>
+                                            <div className="search-result-info">
+                                                <span className="search-result-title">{note.title}</span>
+                                                <span className="search-result-subtitle">Note • {note.subject || 'Personal'}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Communities */}
+                                    {communities.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 3).map(comm => (
+                                        <div key={comm.id} className="search-result-item" onClick={() => navigate('/communities')}>
+                                            <div className="search-result-icon" style={{ background: 'var(--green-light)', color: 'var(--green)' }}>
+                                                <span className="material-symbols-outlined">groups</span>
+                                            </div>
+                                            <div className="search-result-info">
+                                                <span className="search-result-title">{comm.name}</span>
+                                                <span className="search-result-subtitle">Community • Joined</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <div className="header-actions">
                     <Link to="/notes" className="btn btn-outline text-sm">
@@ -158,7 +235,7 @@ function DashboardPage() {
                                 </div>
                             </div>
                             <h3>{analytics.totalStudyHours}</h3>
-                            <p>Focus Time</p>
+                            <p>Focus Time (Last 24h)</p>
                         </div>
                         <div className="stat-card">
                             <div className="stat-header">
@@ -189,7 +266,8 @@ function DashboardPage() {
                                 <Link to="/tasks">View All</Link>
                             </div>
                             <div className="task-list">
-                                {tasks.length > 0 ? tasks.map(function (task) {
+                                {tasks.length > 0 ? 
+                                 tasks.map(function (task) {
                                     return (
                                         <div className="task-item" key={task.id}>
                                             <div
@@ -220,9 +298,15 @@ function DashboardPage() {
                                 </Link>
                             </div>
                             
-                            {communities.length > 0 ? communities.map((c, i) => (
+                            {communities.length > 0 ? 
+                             communities.slice(0, 3).map((c, i) => (
                                 <div className="community-card" key={c.id}>
-                                    <div className="cover" style={{ backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899'][i % 4]}}></div>
+                                    <div className="cover" style={{ 
+                                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899'][i % 4],
+                                        backgroundImage: c.image_url ? `url(${c.image_url})` : 'none',
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center'
+                                    }}></div>
                                     <div className="card-icon" style={{ background: 'var(--primary)' }}>
                                         <span className="material-symbols-outlined">groups</span>
                                     </div>
@@ -232,7 +316,10 @@ function DashboardPage() {
                                     </div>
                                 </div>
                             )) : (
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', marginTop: '20px' }}>No communities yet.</p>
+                                <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '12px' }}>No communities yet.</p>
+                                    <Link to="/communities" className="btn btn-outline btn-sm">Join a community today!</Link>
+                                </div>
                             )}
                         </div>
                     </section>

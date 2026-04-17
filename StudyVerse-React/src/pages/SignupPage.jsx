@@ -27,10 +27,19 @@ function SignupPage() {
     const navigate = useNavigate();
 
     // Handle form submission — sends data to our Express backend
-    async function handleSignup() {
+    async function handleSignup(e) {
+        if (e) e.preventDefault(); // Prevent page reload
+
         // Basic validation
         if (!name || !email || !password || !college || !enrollmentNo || !branch || !semester) {
             alert('Please fill out all required academic fields');
+            return;
+        }
+
+        // Password Validation: Min 8 chars, 1 uppercase, 1 special symbol
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            alert('Password must be at least 8 characters long, include at least one uppercase letter, and one special symbol (!@#$%^&* etc.)');
             return;
         }
 
@@ -108,13 +117,7 @@ function SignupPage() {
                     <h1>Create your account</h1>
                     <p className="lead">Start your productivity journey today.</p>
 
-                    <button className="google-btn" type="button">
-                        Sign up with Microsoft
-                    </button>
-
-                    <div className="divider"><span>Or register with email</span></div>
-
-                    <div className="form-stack">
+                    <form className="form-stack" onSubmit={handleSignup}>
                         {/* Name + Email row (side by side) */}
                         <div className="form-row">
                             <div className="form-group">
@@ -203,9 +206,8 @@ function SignupPage() {
                         </div>
 
                         <button
-                            type="button" className="btn btn-primary btn-lg"
+                            type="submit" className="btn btn-primary btn-lg"
                             style={{ width: '100%', marginTop: '8px' }}
-                            onClick={handleSignup}
                         >
                             Get Started
                         </button>
@@ -213,7 +215,7 @@ function SignupPage() {
                         <p className="terms-text">
                             By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
                         </p>
-                    </div>
+                    </form>
                 </div>
 
                 <div className="signup-footer">© 2025 StudyVerse Inc. All rights reserved.</div>

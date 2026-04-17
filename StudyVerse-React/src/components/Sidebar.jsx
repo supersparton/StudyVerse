@@ -29,6 +29,7 @@ function Sidebar({ isOpen, onToggle }) {
         avatar: '👨‍🎓'
     });
     const [favoriteNotes, setFavoriteNotes] = useState([]);
+    const [pendingTasksCount, setPendingTasksCount] = useState(0);
 
     // ─── Fetch profile and notes data ───
     useEffect(() => {
@@ -71,6 +72,15 @@ function Sidebar({ isOpen, onToggle }) {
                     }
                 }).catch(err => console.error("Failed to fetch favorite notes"));
 
+                // Fetch Pending Tasks Count
+                fetch(import.meta.env.VITE_API_URL + '/api/tasks', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                }).then(res => res.json()).then(data => {
+                    if (data.success && data.tasks) {
+                        setPendingTasksCount(data.tasks.filter(t => t.status !== 'completed').length);
+                    }
+                }).catch(err => console.error("Failed to fetch tasks count"));
+
             } catch (err) {
                 console.error("Error fetching sidebar data", err);
             }
@@ -82,7 +92,7 @@ function Sidebar({ isOpen, onToggle }) {
     const navItems = [
         { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
         { path: '/notes', icon: 'description', label: 'My Notes' },
-        { path: '/tasks', icon: 'check_circle', label: 'Tasks', badge: '4' },
+        { path: '/tasks', icon: 'check_circle', label: 'Tasks', badge: pendingTasksCount > 0 ? String(pendingTasksCount) : null },
         { path: '/pomodoro', icon: 'timer', label: 'Pomodoro' },
         { path: '/communities', icon: 'groups', label: 'Communities' },
         { path: '/analytics', icon: 'bar_chart', label: 'Analytics' },

@@ -24,6 +24,7 @@ function CommunitiesPage() {
     const [communities, setCommunities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Form state for creating a new community
     const [showForm, setShowForm] = useState(false);
@@ -148,14 +149,19 @@ function CommunitiesPage() {
     var colors = ['#6366f1', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4'];
     var icons = ['groups', 'code', 'smart_toy', 'science', 'language', 'calculate'];
 
-    var filters = ['All', 'Trending', 'New'];
+    var filters = ['All', 'Trending', 'New', 'Joined'];
 
     return (
         <DashboardLayout>
             <header className="top-header">
                 <div className="search-bar">
                     <span className="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Search communities..." />
+                    <input 
+                        type="text" 
+                        placeholder="Search communities..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
                 <div className="header-actions">
                     {/* CREATE: Open new community form */}
@@ -221,12 +227,43 @@ function CommunitiesPage() {
 
                     {/* ─── READ: Communities Grid from database ─── */}
                     <div className="communities-grid fade-in-up fade-in-up-delay-2">
-                        {communities.map(function (c, index) {
-                            
-                            // Determine if current user is a member
-                            const currentUserStr = localStorage.getItem('studyverse-user');
-                            const myId = currentUserStr ? JSON.parse(currentUserStr).id : null;
-                            const isMember = c.community_members?.some(m => m.user_id === myId) || c.created_by === myId;
+                        {communities.filter(function(c) {
+                            const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                                 (c.description && c.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                            if (!matchesSearch) return false;
+                            if (activeFilter === 'Joined') {
+                                const currentUserStr = localStorage.getItem('studyverse-user');
+                                const myId = currentUserStr ? JSON.parse(currentUserStr).id : null;
+                                return (c.community_members?.some(m => m.user_id === myId) || c.created_by === myId);
+                            }
+                            return true;
+                        }).length === 0 && searchQuery.trim() !== '' ? (
+                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '48px', marginBottom: '16px' }}>search_off</span>
+                                <p>No communities found matching "{searchQuery}"</p>
+                                <button className="btn btn-outline btn-sm" style={{ marginTop: '12px' }} onClick={() => setSearchQuery('')}>Browse All Communities</button>
+                            </div>
+                        ) : (
+                            communities
+                                .filter(function(c) {
+                                    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                                         (c.description && c.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                                    
+                                    if (!matchesSearch) return false;
+
+                                    if (activeFilter === 'Joined') {
+                                        const currentUserStr = localStorage.getItem('studyverse-user');
+                                        const myId = currentUserStr ? JSON.parse(currentUserStr).id : null;
+                                        return (c.community_members?.some(m => m.user_id === myId) || c.created_by === myId);
+                                    }
+                                    return true;
+                                })
+                                .map(function (c, index) {
+                                
+                                // Determine if current user is a member
+                                const currentUserStr = localStorage.getItem('studyverse-user');
+                                const myId = currentUserStr ? JSON.parse(currentUserStr).id : null;
+                                const isMember = c.community_members?.some(m => m.user_id === myId) || c.created_by === myId;
 
                             return (
                                 <div className="community-explore-card" key={c.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/communities/' + c.id)}>
@@ -266,7 +303,7 @@ function CommunitiesPage() {
                                     </div>
                                 </div>
                             );
-                        })}
+                        }))}
                     </div>
                 </div>
             </div>

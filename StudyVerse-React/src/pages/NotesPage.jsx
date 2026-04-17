@@ -27,6 +27,7 @@ function NotesPage() {
     const [notes, setNotes] = useState([]);             // All notes from database
     const [activeFilter, setActiveFilter] = useState('All');
     const [loading, setLoading] = useState(true);       // Show loading state while fetching
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Form state for creating/editing notes
     const [showForm, setShowForm] = useState(false);    // Toggle the note form
@@ -245,7 +246,12 @@ function NotesPage() {
             <header className="top-header">
                 <div className="search-bar">
                     <span className="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Search notes..." />
+                    <input 
+                        type="text" 
+                        placeholder="Search notes..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
                 <div className="header-actions">
                     {/* CREATE: Button to open the new note form */}
@@ -334,52 +340,72 @@ function NotesPage() {
 
                     {/* ─── READ: Notes Grid — displays all notes from database ─── */}
                     <div className="notes-grid">
-                        {notes.map(function (note) {
-                            var style = getSubjectStyle(note.subject);
-                            return (
-                                <div className="note-card fade-in-up" key={note.id}>
-                                    {note.subject && (
-                                        <span className="note-tag" style={{ background: style.bg, color: style.color }}>
-                                            {note.subject}
-                                        </span>
-                                    )}
-                                    <h4>{note.title}</h4>
-                                    <p>{note.content}</p>
-                                    <div className="note-footer">
-                                        <span>{formatDate(note.created_at)}</span>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            {/* FAVORITE: Toggle button */}
-                                            <span
-                                                className="material-symbols-outlined"
-                                                style={{ fontSize: '18px', cursor: 'pointer', color: note.is_favorite ? '#fbbf24' : 'var(--text-secondary)' }}
-                                                title={note.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
-                                                onClick={function () { toggleFavorite(note); }}
-                                            >
-                                                {note.is_favorite ? 'star' : 'star_border'}
+                        {notes.filter(function(note) {
+                            const query = searchQuery.toLowerCase();
+                            return note.title.toLowerCase().includes(query) || 
+                                   (note.content && note.content.toLowerCase().includes(query)) ||
+                                   (note.subject && note.subject.toLowerCase().includes(query));
+                        }).length === 0 && searchQuery.trim() !== '' ? (
+                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '48px', marginBottom: '16px' }}>search_off</span>
+                                <p>No notes found matching "{searchQuery}"</p>
+                                <button className="btn btn-outline btn-sm" style={{ marginTop: '12px' }} onClick={() => setSearchQuery('')}>Show All Notes</button>
+                            </div>
+                        ) : (
+                            notes
+                                .filter(function(note) {
+                                    const query = searchQuery.toLowerCase();
+                                    return note.title.toLowerCase().includes(query) || 
+                                           (note.content && note.content.toLowerCase().includes(query)) ||
+                                           (note.subject && note.subject.toLowerCase().includes(query));
+                                })
+                                .map(function (note) {
+                                var style = getSubjectStyle(note.subject);
+                                return (
+                                    <div className="note-card fade-in-up" key={note.id}>
+                                        {note.subject && (
+                                            <span className="note-tag" style={{ background: style.bg, color: style.color }}>
+                                                {note.subject}
                                             </span>
-                                            {/* UPDATE: Edit button */}
-                                            <span
-                                                className="material-symbols-outlined"
-                                                style={{ fontSize: '18px', cursor: 'pointer', color: 'var(--primary)' }}
-                                                title="Edit note"
-                                                onClick={function () { startEditing(note); }}
-                                            >
-                                                edit
-                                            </span>
-                                            {/* DELETE: Delete button */}
-                                            <span
-                                                className="material-symbols-outlined"
-                                                style={{ fontSize: '18px', cursor: 'pointer', color: '#ef4444' }}
-                                                title="Delete note"
-                                                onClick={function () { handleDeleteNote(note.id); }}
-                                            >
-                                                delete
-                                            </span>
+                                        )}
+                                        <h4>{note.title}</h4>
+                                        <p>{note.content}</p>
+                                        <div className="note-footer">
+                                            <span>{formatDate(note.created_at)}</span>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                {/* FAVORITE: Toggle button */}
+                                                <span
+                                                    className="material-symbols-outlined"
+                                                    style={{ fontSize: '18px', cursor: 'pointer', color: note.is_favorite ? '#fbbf24' : 'var(--text-secondary)' }}
+                                                    title={note.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                                                    onClick={function () { toggleFavorite(note); }}
+                                                >
+                                                    {note.is_favorite ? 'star' : 'star_border'}
+                                                </span>
+                                                {/* UPDATE: Edit button */}
+                                                <span
+                                                    className="material-symbols-outlined"
+                                                    style={{ fontSize: '18px', cursor: 'pointer', color: 'var(--primary)' }}
+                                                    title="Edit note"
+                                                    onClick={function () { startEditing(note); }}
+                                                >
+                                                    edit
+                                                </span>
+                                                {/* DELETE: Delete button */}
+                                                <span
+                                                    className="material-symbols-outlined"
+                                                    style={{ fontSize: '18px', cursor: 'pointer', color: '#ef4444' }}
+                                                    title="Delete note"
+                                                    onClick={function () { handleDeleteNote(note.id); }}
+                                                >
+                                                    delete
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             </div>

@@ -26,6 +26,25 @@ router.get('/', async function (req, res, next) {
     }
 });
 
+// List JOINED communities
+router.get('/joined', authMiddleware, async function (req, res, next) {
+    try {
+        const { data, error } = await supabase
+            .from('community_members')
+            .select('community_id, communities(*)')
+            .eq('user_id', req.user.id);
+
+        if (error) throw new Error(error.message);
+        
+        // Flatten the response
+        const communities = data.map(item => item.communities);
+        
+        res.json({ success: true, count: communities.length, communities: communities });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // Get ONE community
 router.get('/:id', authMiddleware, async function (req, res, next) {
     try {

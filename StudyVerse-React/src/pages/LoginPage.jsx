@@ -29,8 +29,10 @@ function LoginPage() {
 
 
     // ─── FORM VALIDATION & SUBMIT ───
-    // This function runs when the user clicks "Login"
-    async function handleLogin() {
+    // This function runs when the user clicks "Login" or presses Enter
+    async function handleLogin(e) {
+        if (e) e.preventDefault(); // Prevent page reload
+
         // Check if fields are empty
         if (email === '' || password === '') {
             alert('Email and Password is required');
@@ -106,15 +108,8 @@ function LoginPage() {
                     <h1>Welcome back</h1>
                     <p className="lead">Login to your account.</p>
 
-                    {/* Microsoft Sign In Button */}
-                    <button className="google-btn" type="button">
-                        Sign in with Microsoft
-                    </button>
-
-                    <div className="divider"><span>Or login with email</span></div>
-
                     {/* Login Form */}
-                    <div className="form-stack">
+                    <form className="form-stack" onSubmit={handleLogin}>
                         <div className="form-group">
                             <label htmlFor="email">Email Address</label>
                             {/* 
@@ -153,10 +148,9 @@ function LoginPage() {
 
                         {/* Login Button — calls handleLogin when clicked */}
                         <button
-                            type="button"
+                            type="submit"
                             className="btn btn-primary btn-lg"
                             style={{ width: '100%', marginTop: '8px' }}
-                            onClick={handleLogin}
                         >
                             Login
                         </button>
@@ -164,7 +158,7 @@ function LoginPage() {
                         <p className="terms-text">
                             By logging in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
                         </p>
-                    </div>
+                    </form>
                 </div>
 
                 <div className="signup-footer">

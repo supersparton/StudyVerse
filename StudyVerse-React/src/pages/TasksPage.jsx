@@ -24,6 +24,7 @@ function TasksPage() {
     const [tasks, setTasks] = useState([]);        // All tasks from database
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Form state
     const [showForm, setShowForm] = useState(false);
@@ -167,10 +168,16 @@ function TasksPage() {
         setFormStatus('pending');
     }
 
+    // ─── Filter tasks based on search query ───
+    var filteredTasks = tasks.filter(function(t) {
+        return t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+               (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    });
+
     // ─── Group tasks by status for Kanban columns ───
-    var pendingTasks = tasks.filter(function (t) { return t.status === 'pending'; });
-    var inProgressTasks = tasks.filter(function (t) { return t.status === 'in_progress'; });
-    var completedTasks = tasks.filter(function (t) { return t.status === 'completed'; });
+    var pendingTasks = filteredTasks.filter(function (t) { return t.status === 'pending'; });
+    var inProgressTasks = filteredTasks.filter(function (t) { return t.status === 'in_progress'; });
+    var completedTasks = filteredTasks.filter(function (t) { return t.status === 'completed'; });
 
     // Priority badge styling
     function getBadgeClass(priority) {
@@ -239,7 +246,12 @@ function TasksPage() {
             <header className="top-header">
                 <div className="search-bar">
                     <span className="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Search tasks..." />
+                    <input 
+                        type="text" 
+                        placeholder="Search tasks..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
                 <div className="header-actions">
                     <button className="btn btn-primary" onClick={function () { resetForm(); setShowForm(true); }}>
@@ -331,31 +343,39 @@ function TasksPage() {
                     )}
 
                     {/* ─── READ: Kanban Board — 3 columns grouped by status ─── */}
-                    <div className="task-board fade-in-up fade-in-up-delay-2">
-                        {/* TO DO Column */}
-                        <div className="task-column">
-                            <div className="task-column-header">
-                                <h4>To Do <span className="count">{pendingTasks.length}</span></h4>
-                            </div>
-                            {pendingTasks.map(renderTaskCard)}
+                    {searchQuery.trim() !== '' && filteredTasks.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '48px', marginBottom: '16px' }}>search_off</span>
+                            <p>No tasks match your search "{searchQuery}"</p>
+                            <button className="btn btn-outline btn-sm" style={{ marginTop: '12px' }} onClick={() => setSearchQuery('')}>Clear Search</button>
                         </div>
+                    ) : (
+                        <div className="task-board fade-in-up fade-in-up-delay-2">
+                            {/* TO DO Column */}
+                            <div className="task-column">
+                                <div className="task-column-header">
+                                    <h4>To Do <span className="count">{pendingTasks.length}</span></h4>
+                                </div>
+                                {pendingTasks.map(renderTaskCard)}
+                            </div>
 
-                        {/* IN PROGRESS Column */}
-                        <div className="task-column">
-                            <div className="task-column-header">
-                                <h4>In Progress <span className="count">{inProgressTasks.length}</span></h4>
+                            {/* IN PROGRESS Column */}
+                            <div className="task-column">
+                                <div className="task-column-header">
+                                    <h4>In Progress <span className="count">{inProgressTasks.length}</span></h4>
+                                </div>
+                                {inProgressTasks.map(renderTaskCard)}
                             </div>
-                            {inProgressTasks.map(renderTaskCard)}
-                        </div>
 
-                        {/* DONE Column */}
-                        <div className="task-column">
-                            <div className="task-column-header">
-                                <h4>Done <span className="count">{completedTasks.length}</span></h4>
+                            {/* DONE Column */}
+                            <div className="task-column">
+                                <div className="task-column-header">
+                                    <h4>Done <span className="count">{completedTasks.length}</span></h4>
+                                </div>
+                                {completedTasks.map(renderTaskCard)}
                             </div>
-                            {completedTasks.map(renderTaskCard)}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </DashboardLayout>
